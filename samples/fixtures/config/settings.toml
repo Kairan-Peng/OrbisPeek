@@ -1,0 +1,6 @@
+# TOML 配置
+name = "轻量预览"
+enabled = true
+[server]
+port = 8080
+paths = ["文档", "代码"]

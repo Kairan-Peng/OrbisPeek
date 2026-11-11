@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""Build and verify signed Release ZIP/DMG artifacts. Uploads require an explicit flag."""
+
+import argparse
+from datetime import datetime, timezone
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import runpy
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[1]
+HELPERS = runpy.run_path(str(ROOT / "scripts/verify-release"))
+run = HELPERS["run"]
+sha256 = HELPERS["sha256"]
+verify_app = HELPERS["verify_app"]
+verify_manifest = HELPERS["verify_manifest"]
+require = HELPERS["require"]
+
+
+def make_zip(app, archive):
+    run(["ditto", "--norsrc", "--noextattr", "-c", "-k", "--keepParent", app, archive])
+
+
+def notarize(artifact, profile):
+    # This explicit option is the only upload path. A profile name is not a password.
+    output, _ = run(["xcrun", "notarytool", "submit", artifact, "--keychain-profile", profile,
+                     "--wait", "--output-format", "json"])
+    result = json.loads(output)
+    require(result.get("status") == "Accepted", f"Apple did not accept {artifact.name}: {result.get('status')}")
+    return result["id"]
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--architectures", choices=("universal", "native", "arm64", "x86_64"), default="universal")
+    parser.add_argument("--derived-data", type=Path, default=ROOT / ".build/release-derived")
+    parser.add_argument("--output", type=Path, default=ROOT / "dist/release")
+    parser.add_argument("--app", type=Path, help="Package an already-built Release app instead of building")
+    parser.add_argument("--basic", action="store_true", help="Build without the optional shared directory access capability")
+    parser.add_argument("--timestamp", action="store_true", help="Request an Apple signing timestamp (network access)")
+    parser.add_argument("--notarize-profile", metavar="KEYCHAIN_PROFILE", help="Explicitly upload the ZIP and DMG to Apple's notary service and staple accepted tickets")
+    args = parser.parse_args()
+    os.chdir(ROOT)
+    try:
+        identity = os.environ.get("QUICKLOOK_SIGNING_IDENTITY")
+        require(identity, "Set QUICKLOOK_SIGNING_IDENTITY to your existing Developer ID Application identity.")
+        expected_architectures = ["arm64", "x86_64"] if args.architectures == "universal" else [platform.machine() if args.architectures == "native" else args.architectures]
+        if args.app:
+            built_app = args.app.resolve()
+        else:
+            require(os.environ.get("QUICKLOOK_TEAM_ID"), "Set QUICKLOOK_TEAM_ID to your existing Apple developer team.")
+            command = [str(ROOT / "scripts/build"), "--configuration", "Release", "--architectures", args.architectures,
+                       "--derived-data", str(args.derived_data.resolve()), "--no-register",
+                       "--sign" if args.basic else "--directory-access"]
+            if args.timestamp or args.notarize_profile:
+                command.append("--timestamp")
+            command.append("-quiet")
+            subprocess.run(command, check=True)
+            built_app = args.derived_data.resolve() / "Build/Products/Release/Quicklook.app"
+        app_result = verify_app(built_app, expected_architectures)
+        require(args.basic or app_result["directoryAccess"], "Directory access is missing; use --basic only for the intentionally reduced capability package.")
+        if args.notarize_profile:
+            signature = "".join(run(["codesign", "-d", "--verbose=4", built_app]))
+            require(re.search(r"^Timestamp=(?!none).+", signature, re.MULTILINE), "The app needs a secure signing timestamp before notarization. Rebuild with --timestamp.")
+        version = app_result["version"]
+        require(re.fullmatch(r"[A-Za-z0-9._+-]+", version), "The version cannot be used as a release filename.")
+        architecture_name = "universal" if len(expected_architectures) == 2 else expected_architectures[0]
+        stem = f"Quicklook-{version}-macos-{architecture_name}"
+        (ROOT / ".build").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix="package-release-", dir=ROOT / ".build") as temporary:
+            staging = Path(temporary)
+            contents = staging / "disk-contents"
+            contents.mkdir()
+            app = contents / "Quicklook.app"
+            run(["ditto", "--norsrc", "--noextattr", built_app, app])
+            (contents / "Applications").symlink_to("/Applications")
+            (contents / "安装说明.txt").write_text(
+                "将 Quicklook.app 拖入 Applications，然后打开应用并启用快速查看扩展。\n"
+                "如果安装过同类预览插件，请在应用中查看冲突诊断。\n"
+                + ("此包已完成 Apple 公证。\n" if args.notarize_profile else "此包为本地签名测试版本，尚未提交 Apple 公证；不应作为已公证版本对外发布。\n"),
+                encoding="utf-8"
+            )
+            archive = staging / f"{stem}.zip"
+            disk_image = staging / f"{stem}.dmg"
+            notarization = {"status": "not-submitted", "submissionIDs": []}
+            if args.notarize_profile:
+                make_zip(app, archive)
+                notarization["submissionIDs"].append(notarize(archive, args.notarize_profile))
+                run(["xcrun", "stapler", "staple", app])
+                run(["xcrun", "stapler", "validate", app])
+            make_zip(app, archive)
+            run(["hdiutil", "create", "-volname", "Quicklook", "-srcfolder", contents, "-format", "UDZO", "-ov", disk_image])
+            timestamp = "--timestamp" if args.timestamp or args.notarize_profile else "--timestamp=none"
+            run(["codesign", "--force", "--sign", identity, timestamp, disk_image])
+            if args.notarize_profile:
+                notarization["submissionIDs"].append(notarize(disk_image, args.notarize_profile))
+                run(["xcrun", "stapler", "staple", disk_image])
+                notarization["status"] = "accepted"
+            manifest = {
+                "schemaVersion": 1,
+                "generatedAt": datetime.now(timezone.utc).isoformat(),
+                "configuration": "Release",
+                "signingTimestamp": "secure" if args.timestamp or args.notarize_profile else "none",
+                "notarization": notarization,
+                "app": verify_app(app, expected_architectures),
+                "artifacts": [{"kind": kind, "file": artifact.name, "bytes": artifact.stat().st_size, "sha256": sha256(artifact)}
+                              for kind, artifact in (("zip", archive), ("dmg", disk_image))],
+            }
+            manifest_path = staging / f"{stem}.manifest.json"
+            manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
+            verify_manifest(manifest_path)
+            checksums = staging / f"{stem}.SHA256SUMS"
+            checksums.write_text("".join(f"{sha256(item)}  {item.name}\n" for item in (archive, disk_image, manifest_path)))
+            args.output.mkdir(parents=True, exist_ok=True)
+            # Publish the manifest last so a consumer cannot mistake partial output for a completed package.
+            for item in (archive, disk_image, checksums, manifest_path):
+                os.replace(item, args.output / item.name)
+            print(f"Verified Release artifacts: {args.output.resolve() / manifest_path.name}")
+            print(f"Architectures: {', '.join(expected_architectures)}; notarization: {notarization['status']}")
+    except (OSError, ValueError, KeyError, RuntimeError, subprocess.CalledProcessError) as error:
+        print(f"Release packaging failed: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

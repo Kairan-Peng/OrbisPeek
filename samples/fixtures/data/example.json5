@@ -1,0 +1,2 @@
+// JSON5 is code highlighting, not strict JSON
+{name:'中文', count:0x10, trailing:[1,2,],}

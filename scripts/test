@@ -1,0 +1,6 @@
+#!/bin/zsh
+set -euo pipefail
+cd "${0:A:h:h}"
+python3 scripts/generate-types.py --check
+npm --prefix WebRenderer test
+swift test

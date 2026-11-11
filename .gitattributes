@@ -1,0 +1,19 @@
+* text=auto eol=lf
+
+# Preserve intentional legacy encodings, binary disguises and line endings.
+samples/fixtures/** -text
+*.png binary
+
+# Generated bundles preserve dependency whitespace; license bytes stay intact.
+Sources/QuicklookUI/Resources/** -whitespace
+Sources/QuicklookUI/Resources/THIRD_PARTY_NOTICES.txt -text
+third-party/** -text
+WebRenderer/licenses/** -text
+
+Config/Preview-Info.plist linguist-generated=true
+docs/file-types.md linguist-generated=true
+Sources/QuicklookUI/Resources/renderer.js linguist-generated=true
+Sources/QuicklookUI/Resources/styles.css linguist-generated=true
+Sources/QuicklookUI/Resources/index.html linguist-generated=true
+Sources/QuicklookUI/Resources/THIRD_PARTY_NOTICES.txt linguist-generated=true
+WebRenderer/THIRD_PARTY.md linguist-generated=true

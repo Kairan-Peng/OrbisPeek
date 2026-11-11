@@ -1,0 +1,93 @@
+#!/bin/zsh
+set -euo pipefail
+cd "${0:A:h:h}"
+configuration=Debug
+architectures=native
+derived_data=.build/xcode
+directory_access=false
+signed_build=false
+secure_timestamp=false
+remove_build_registration=false
+extra_options=()
+
+while (( $# )); do
+  case "$1" in
+    --configuration) configuration="${2:?Missing configuration}"; shift 2 ;;
+    --architectures) architectures="${2:?Missing architecture selection}"; shift 2 ;;
+    --derived-data) derived_data="${2:?Missing derived data path}"; shift 2 ;;
+    --directory-access) directory_access=true; signed_build=true; shift ;;
+    --sign) signed_build=true; shift ;;
+    --timestamp) secure_timestamp=true; shift ;;
+    --no-register) remove_build_registration=true; shift ;;
+    --help)
+      cat <<'HELP'
+Usage: scripts/build [--configuration Debug|Release]
+  [--architectures native|universal|arm64|x86_64] [--derived-data PATH]
+  [--sign] [--directory-access] [--timestamp] [--no-register] [xcodebuild options]
+
+Signing uses QUICKLOOK_SIGNING_IDENTITY and QUICKLOOK_TEAM_ID. The optional
+directory-access mode implies --sign. No certificates or profiles are created.
+--timestamp explicitly enables Apple's signing timestamp request; default is local.
+--no-register removes only this build's .app/.appex registration after success.
+Xcode briefly registers macOS apps during its build; this is not a prevention flag.
+HELP
+      exit 0 ;;
+    --) shift; extra_options+=("$@"); break ;;
+    *) extra_options+=("$1"); shift ;;
+  esac
+done
+
+[[ "$configuration" == Debug || "$configuration" == Release ]] || { print -u2 'Configuration must be Debug or Release.'; exit 2; }
+case "$architectures" in
+  native) arch_value="$(uname -m)" ;;
+  universal) arch_value='arm64 x86_64' ;;
+  arm64|x86_64) arch_value="$architectures" ;;
+  *) print -u2 'Architectures must be native, universal, arm64, or x86_64.'; exit 2 ;;
+esac
+
+signing_options=()
+if $signed_build; then
+  : "${QUICKLOOK_SIGNING_IDENTITY:?Set QUICKLOOK_SIGNING_IDENTITY to your existing Developer ID identity}"
+  : "${QUICKLOOK_TEAM_ID:?Set QUICKLOOK_TEAM_ID to your Apple developer team identifier}"
+  signing_options=(
+    "CODE_SIGN_STYLE=Manual"
+    "CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO"
+    "CODE_SIGN_IDENTITY=$QUICKLOOK_SIGNING_IDENTITY"
+    "DEVELOPMENT_TEAM=$QUICKLOOK_TEAM_ID"
+    "OTHER_CODE_SIGN_FLAGS=--timestamp=none"
+  )
+  if $secure_timestamp; then
+    signing_options[-1]='OTHER_CODE_SIGN_FLAGS=--timestamp'
+  fi
+  if $directory_access; then
+    signing_options+=(
+      "QUICKLOOK_APP_GROUP=$QUICKLOOK_TEAM_ID.org.quicklook.preview.shared"
+      'CODE_SIGN_ENTITLEMENTS=Config/DirectoryAccess.entitlements'
+    )
+  fi
+elif $secure_timestamp; then
+  print -u2 '--timestamp requires --sign or --directory-access.'
+  exit 2
+fi
+
+configuration_options=()
+if [[ "$configuration" == Release ]]; then
+  configuration_options=(-xcconfig Config/Release.xcconfig)
+fi
+python3 scripts/generate-types.py
+npm --prefix WebRenderer ci --no-audit --no-fund
+npm --prefix WebRenderer run build
+xcodegen generate
+xcodebuild -project Quicklook.xcodeproj -scheme Quicklook -configuration "$configuration" \
+  -destination 'generic/platform=macOS' -derivedDataPath "$derived_data" \
+  "${configuration_options[@]}" build "ARCHS=$arch_value" 'ONLY_ACTIVE_ARCH=NO' \
+  "${signing_options[@]}" "${extra_options[@]}"
+
+if $remove_build_registration; then
+  built_app="${derived_data:A}/Build/Products/$configuration/Quicklook.app"
+  built_extension="$built_app/Contents/PlugIns/QuicklookPreview.appex"
+  # Target exact build paths; do not alter an installed app or another provider.
+  /usr/bin/pluginkit -r "$built_extension"
+  /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -u "$built_app"
+  print "Removed temporary build registration: $built_app"
+fi

@@ -1,0 +1,2098 @@
+[
+  {
+    "id": "markdown",
+    "language": "markdown",
+    "mode": "markdown",
+    "extensions": [
+      "md",
+      "markdown",
+      "mdown",
+      "mkd",
+      "mkdn",
+      "mdwn",
+      "mdtxt",
+      "mdtext"
+    ],
+    "filenames": [],
+    "utis": [
+      "net.daringfireball.markdown",
+      "public.markdown",
+      "io.typora.markdown"
+    ],
+    "imports": [
+      {
+        "identifier": "net.daringfireball.markdown",
+        "extensions": [
+          "md",
+          "markdown"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      },
+      {
+        "identifier": "public.markdown",
+        "extensions": [
+          "mdown",
+          "mkd",
+          "mkdn"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "json",
+    "language": "json",
+    "mode": "json",
+    "extensions": [
+      "json",
+      "webmanifest"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.json",
+      "org.quicklook.preview.webmanifest"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.webmanifest",
+        "extensions": [
+          "webmanifest"
+        ],
+        "conformsTo": [
+          "public.json"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "json-lines",
+    "language": "json",
+    "mode": "jsonl",
+    "extensions": [
+      "jsonl",
+      "ndjson"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.ndjson",
+      "org.quicklook.preview.json-lines"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.json-lines",
+        "extensions": [
+          "jsonl"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "imports": [
+      {
+        "identifier": "public.ndjson",
+        "extensions": [
+          "ndjson"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "json-with-comments",
+    "language": "json",
+    "mode": "code",
+    "extensions": [
+      "jsonc",
+      "code-workspace"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.json.jsonc",
+      "org.quicklook.preview.jsonc-workspace"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.jsonc-workspace",
+        "extensions": [
+          "code-workspace"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "json5",
+    "language": "json",
+    "mode": "code",
+    "extensions": [
+      "json5"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.json5"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.json5",
+        "extensions": [
+          "json5"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "yaml",
+    "language": "yaml",
+    "mode": "code",
+    "extensions": [
+      "yaml",
+      "yml"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.yaml",
+      "org.yaml.yaml"
+    ],
+    "imports": [
+      {
+        "identifier": "org.yaml.yaml",
+        "extensions": [
+          "yaml",
+          "yml"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "toml",
+    "language": "ini",
+    "mode": "code",
+    "extensions": [
+      "toml"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.toml",
+      "io.toml"
+    ],
+    "imports": [
+      {
+        "identifier": "io.toml",
+        "extensions": [
+          "toml"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "properties",
+    "language": "properties",
+    "mode": "code",
+    "extensions": [
+      "properties"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.properties"
+    ],
+    "imports": [
+      {
+        "identifier": "public.properties",
+        "extensions": [
+          "properties"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "ini",
+    "language": "ini",
+    "mode": "code",
+    "extensions": [
+      "ini",
+      "cfg",
+      "conf",
+      "cnf",
+      "config",
+      "desktop"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.microsoft.ini",
+      "org.n8gray.ini-source",
+      "com.barebones.bbedit.ini-configuration",
+      "com.macromates.textmate.config-file",
+      "org.sbarex.conf",
+      "org.quicklook.preview.configuration"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.configuration",
+        "extensions": [
+          "conf",
+          "cnf",
+          "config",
+          "desktop"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "imports": [
+      {
+        "identifier": "com.microsoft.ini",
+        "extensions": [
+          "ini"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "logs",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "log",
+      "out",
+      "err"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.apple.log",
+      "org.quicklook.preview.log-text"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.log-text",
+        "extensions": [
+          "out",
+          "err"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "imports": [
+      {
+        "identifier": "com.apple.log",
+        "extensions": [
+          "log"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plain-config",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "lock",
+      "gitignore",
+      "gitattributes",
+      "gitmodules"
+    ],
+    "filenames": [
+      "LICENSE",
+      "COPYING",
+      "NOTICE",
+      "CHANGELOG",
+      "AUTHORS",
+      ".gitignore",
+      ".gitattributes",
+      ".gitmodules",
+      ".dockerignore",
+      ".ignore"
+    ],
+    "utis": [
+      "org.quicklook.preview.plain-config"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.plain-config",
+        "extensions": [
+          "lock",
+          "gitignore",
+          "gitattributes",
+          "gitmodules"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "Filename recognition works after invocation; extensionless files and dotfiles are not guaranteed Finder routing surfaces."
+  },
+  {
+    "id": "dotenv",
+    "language": "bash",
+    "mode": "code",
+    "extensions": [
+      "env"
+    ],
+    "filenames": [
+      ".env",
+      ".env.local",
+      ".env.development",
+      ".env.production",
+      ".env.test",
+      ".env.example"
+    ],
+    "utis": [
+      "org.quicklook.preview.dotenv"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.dotenv",
+        "extensions": [
+          "env"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "Dotfiles are recognized by exact filename; no generic data/plain-text provider is claimed."
+  },
+  {
+    "id": "git-config",
+    "language": "ini",
+    "mode": "code",
+    "extensions": [
+      "gitconfig",
+      "editorconfig",
+      "npmrc",
+      "yarnrc"
+    ],
+    "filenames": [
+      ".gitconfig",
+      ".editorconfig",
+      ".npmrc",
+      ".yarnrc",
+      ".pypirc",
+      ".coveragerc",
+      ".flake8",
+      ".pylintrc",
+      ".gitlint"
+    ],
+    "utis": [
+      "org.quicklook.preview.tool-config"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.tool-config",
+        "extensions": [
+          "gitconfig",
+          "editorconfig",
+          "npmrc",
+          "yarnrc"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "swift",
+    "language": "swift",
+    "mode": "code",
+    "extensions": [
+      "swift",
+      "swiftinterface"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.swift-source",
+      "public.swift-interface"
+    ],
+    "imports": [
+      {
+        "identifier": "public.swift-interface",
+        "extensions": [
+          "swiftinterface"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "javascript",
+    "language": "javascript",
+    "mode": "code",
+    "extensions": [
+      "js",
+      "mjs",
+      "cjs",
+      "jsx"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.netscape.javascript-source",
+      "org.nodejs.cjs",
+      "com.adobe.jsx"
+    ],
+    "imports": [
+      {
+        "identifier": "org.nodejs.cjs",
+        "extensions": [
+          "cjs"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "typescript",
+    "language": "typescript",
+    "mode": "code",
+    "extensions": [
+      "ts",
+      "tsx",
+      "cts",
+      "mts"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.typescript",
+      "public.tsx",
+      "com.microsoft.typescript",
+      "org.typescriptlang.typescript",
+      "com.barebones.bbedit.typescript-source"
+    ],
+    "routingNotes": "The .ts/.mts preferred types can be MPEG media; media UTIs are deliberately excluded. Render these as code only when macOS supplies a semantic TypeScript UTI."
+  },
+  {
+    "id": "python",
+    "language": "python",
+    "mode": "code",
+    "extensions": [
+      "py",
+      "pyw",
+      "pyi",
+      "pyx",
+      "pxd"
+    ],
+    "filenames": [
+      "SConstruct",
+      "SConscript"
+    ],
+    "utis": [
+      "public.python-script",
+      "org.quicklook.preview.python-source"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.python-source",
+        "extensions": [
+          "pyw",
+          "pyi",
+          "pyx",
+          "pxd"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rust",
+    "language": "rust",
+    "mode": "code",
+    "extensions": [
+      "rs"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.rust-lang.rust",
+      "org.rust-lang.source",
+      "org.rust-lang.rust-script"
+    ],
+    "imports": [
+      {
+        "identifier": "org.rust-lang.rust",
+        "extensions": [
+          "rs"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "go",
+    "language": "go",
+    "mode": "code",
+    "extensions": [
+      "go"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.go.source",
+      "org.golang.golang",
+      "org.golang.go-script"
+    ],
+    "imports": [
+      {
+        "identifier": "org.golang.golang",
+        "extensions": [
+          "go"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "java",
+    "language": "java",
+    "mode": "code",
+    "extensions": [
+      "java",
+      "jav"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.sun.java-source"
+    ]
+  },
+  {
+    "id": "kotlin",
+    "language": "kotlin",
+    "mode": "code",
+    "extensions": [
+      "kt",
+      "kts"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.kotlinlang.source",
+      "org.quicklook.preview.kotlin-source"
+    ],
+    "imports": [
+      {
+        "identifier": "org.kotlinlang.source",
+        "extensions": [
+          "kt",
+          "kts"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.kotlin-source",
+        "extensions": [
+          "kt",
+          "kts"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "The imported org.kotlinlang.source route remained dynamic on the observed machine; a product-owned semantic fallback is declared."
+  },
+  {
+    "id": "c",
+    "language": "c",
+    "mode": "code",
+    "extensions": [
+      "c",
+      "h"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.c-source",
+      "public.c-header"
+    ]
+  },
+  {
+    "id": "cpp",
+    "language": "cpp",
+    "mode": "code",
+    "extensions": [
+      "cc",
+      "cpp",
+      "cxx",
+      "c++",
+      "hh",
+      "hpp",
+      "hxx",
+      "h++",
+      "inl",
+      "ipp",
+      "tpp"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.c-plus-plus-source",
+      "public.c-plus-plus-header",
+      "org.quicklook.preview.cpp-inline",
+      "public.c-plus-plus-inline-header"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.cpp-inline",
+        "extensions": [
+          "tpp"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "objective-c",
+    "language": "objectivec",
+    "mode": "code",
+    "extensions": [
+      "m",
+      "mm"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.objective-c-source",
+      "public.objective-c-plus-plus-source"
+    ]
+  },
+  {
+    "id": "csharp",
+    "language": "csharp",
+    "mode": "code",
+    "extensions": [
+      "cs",
+      "csx"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.microsoft.csharp-source",
+      "com.microsoft.c-sharp",
+      "org.quicklook.preview.csharp-script"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.csharp-script",
+        "extensions": [
+          "csx"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fsharp",
+    "language": "fsharp",
+    "mode": "code",
+    "extensions": [
+      "fs",
+      "fsx",
+      "fsi"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.microsoft.f-sharp",
+      "org.quicklook.preview.fsharp-interface"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.fsharp-interface",
+        "extensions": [
+          "fsi"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "The .fs suffix also names GLSL shaders. Only semantic F# UTIs are registered for this group; the preferred type must be checked on the target machine."
+  },
+  {
+    "id": "visual-basic",
+    "language": "vbnet",
+    "mode": "code",
+    "extensions": [
+      "vb"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.microsoft.vb-source"
+    ]
+  },
+  {
+    "id": "shell",
+    "language": "bash",
+    "mode": "code",
+    "extensions": [
+      "sh",
+      "bash",
+      "zsh",
+      "ksh",
+      "csh",
+      "fish",
+      "command"
+    ],
+    "filenames": [
+      ".bashrc",
+      ".bash_profile",
+      ".bash_login",
+      ".bash_logout",
+      ".profile",
+      ".zshrc",
+      ".zprofile",
+      ".zshenv",
+      ".zlogin",
+      ".inputrc"
+    ],
+    "utis": [
+      "public.shell-script",
+      "public.bash-script",
+      "public.zsh-script",
+      "public.ksh-script",
+      "public.csh-script",
+      "org.fish.source",
+      "com.apple.terminal.shell-script"
+    ]
+  },
+  {
+    "id": "ruby",
+    "language": "ruby",
+    "mode": "code",
+    "extensions": [
+      "rb",
+      "rbw",
+      "rake",
+      "gemspec",
+      "podspec"
+    ],
+    "filenames": [
+      "Gemfile",
+      "Rakefile",
+      "Guardfile",
+      "Vagrantfile",
+      "Podfile",
+      "Brewfile",
+      "Fastfile",
+      "Appfile"
+    ],
+    "utis": [
+      "public.ruby-script",
+      "org.quicklook.preview.ruby-config",
+      "org.rubygems.gemspec",
+      "org.cocoapods.podspec"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.ruby-config",
+        "extensions": [
+          "rake",
+          "gemspec",
+          "podspec"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "php",
+    "language": "php",
+    "mode": "code",
+    "extensions": [
+      "php",
+      "php3",
+      "php4",
+      "php5",
+      "php7",
+      "phtml"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.php-script",
+      "org.quicklook.preview.php-source"
+    ],
+    "imports": [
+      {
+        "identifier": "public.php-script",
+        "extensions": [
+          "php",
+          "php3",
+          "php4",
+          "php5",
+          "php7",
+          "phtml"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.php-source",
+        "extensions": [
+          "php5",
+          "php7"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "The .php5/.php7 suffixes remained dynamic despite the imported public.php-script declaration on the observed machine. A product-owned plain-text PHP fallback is declared only for those two suffixes; real Finder selection must be rechecked after installation."
+  },
+  {
+    "id": "lua",
+    "language": "lua",
+    "mode": "code",
+    "extensions": [
+      "lua",
+      "luau"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.lua.lua-source",
+      "org.lua.lua",
+      "public.lua-source",
+      "org.quicklook.preview.luau"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.luau",
+        "extensions": [
+          "luau"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "perl",
+    "language": "perl",
+    "mode": "code",
+    "extensions": [
+      "pl",
+      "pm"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.perl-script"
+    ]
+  },
+  {
+    "id": "r",
+    "language": "r",
+    "mode": "code",
+    "extensions": [
+      "r",
+      "rprofile"
+    ],
+    "filenames": [
+      "Rprofile",
+      ".Rprofile"
+    ],
+    "utis": [
+      "org.r-project.r",
+      "org.quicklook.preview.r-profile"
+    ],
+    "routingNotes": "The .r suffix can resolve to Apple Rez source. That unrelated identifier is not registered merely to improve R coverage.",
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.r-profile",
+        "extensions": [
+          "rprofile"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "julia",
+    "language": "julia",
+    "mode": "code",
+    "extensions": [
+      "jl"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.julialang.julia"
+    ]
+  },
+  {
+    "id": "dart",
+    "language": "dart",
+    "mode": "code",
+    "extensions": [
+      "dart"
+    ],
+    "filenames": [],
+    "utis": [
+      "dev.dart.dart-script",
+      "org.sbarex.dart"
+    ]
+  },
+  {
+    "id": "scala",
+    "language": "scala",
+    "mode": "code",
+    "extensions": [
+      "scala",
+      "sc",
+      "sbt"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.scala.source",
+      "org.scala-lang.scala-source",
+      "org.scala-lang.scala",
+      "org.quicklook.preview.scala-build"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.scala-build",
+        "extensions": [
+          "sbt"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "groovy",
+    "language": "groovy",
+    "mode": "code",
+    "extensions": [
+      "groovy",
+      "gradle",
+      "gvy"
+    ],
+    "filenames": [
+      "Jenkinsfile"
+    ],
+    "utis": [
+      "org.codehaus.groovy-source",
+      "org.gradle.source",
+      "org.quicklook.preview.groovy-script",
+      "org.quicklook.preview.gradle-source"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.groovy-script",
+        "extensions": [
+          "gvy"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      },
+      {
+        "identifier": "org.quicklook.preview.gradle-source",
+        "extensions": [
+          "gradle"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "imports": [
+      {
+        "identifier": "org.gradle.source",
+        "extensions": [
+          "gradle"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "The imported org.gradle.source route remained dynamic on the observed machine; a product-owned semantic fallback is declared."
+  },
+  {
+    "id": "sql",
+    "language": "sql",
+    "mode": "code",
+    "extensions": [
+      "sql",
+      "ddl",
+      "dml"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.iso.sql",
+      "com.sequel-ace.sequel-ace.sql",
+      "org.n8gray.structured-query-language-source",
+      "org.quicklook.preview.sql-script"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.sql-script",
+        "extensions": [
+          "ddl",
+          "dml"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "css",
+    "language": "css",
+    "mode": "code",
+    "extensions": [
+      "css"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.css",
+      "org.w3.css"
+    ]
+  },
+  {
+    "id": "scss",
+    "language": "scss",
+    "mode": "code",
+    "extensions": [
+      "scss"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.barebones.bbedit.scss-source"
+    ]
+  },
+  {
+    "id": "sass",
+    "language": "scss",
+    "mode": "code",
+    "extensions": [
+      "sass"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.sass"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.sass",
+        "extensions": [
+          "sass"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "less",
+    "language": "less",
+    "mode": "code",
+    "extensions": [
+      "less"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.lesscss.less"
+    ]
+  },
+  {
+    "id": "web-components",
+    "language": "xml",
+    "mode": "code",
+    "extensions": [
+      "vue",
+      "svelte",
+      "astro"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.vuejs.vue",
+      "dev.svelte.source",
+      "org.quicklook.preview.astro",
+      "org.quicklook.preview.svelte-source"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.astro",
+        "extensions": [
+          "astro"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      },
+      {
+        "identifier": "org.quicklook.preview.svelte-source",
+        "extensions": [
+          "svelte"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "imports": [
+      {
+        "identifier": "dev.svelte.source",
+        "extensions": [
+          "svelte"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "The imported dev.svelte.source route remained dynamic on the observed machine; a product-owned semantic fallback is declared."
+  },
+  {
+    "id": "graphql",
+    "language": "graphql",
+    "mode": "code",
+    "extensions": [
+      "graphql",
+      "gql",
+      "graphqls"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.graphql"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.graphql",
+        "extensions": [
+          "graphql",
+          "gql",
+          "graphqls"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "protobuf",
+    "language": "protobuf",
+    "mode": "code",
+    "extensions": [
+      "proto"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.protobuf-source"
+    ]
+  },
+  {
+    "id": "cmake",
+    "language": "cmake",
+    "mode": "code",
+    "extensions": [
+      "cmake"
+    ],
+    "filenames": [
+      "CMakeLists.txt"
+    ],
+    "utis": [
+      "org.cmake.cmake"
+    ]
+  },
+  {
+    "id": "makefile",
+    "language": "makefile",
+    "mode": "code",
+    "extensions": [
+      "make",
+      "mk",
+      "mak"
+    ],
+    "filenames": [
+      "Makefile",
+      "GNUmakefile",
+      "makefile"
+    ],
+    "utis": [
+      "public.make-source"
+    ]
+  },
+  {
+    "id": "dockerfile",
+    "language": "dockerfile",
+    "mode": "code",
+    "extensions": [
+      "dockerfile",
+      "containerfile"
+    ],
+    "filenames": [
+      "Dockerfile",
+      "Containerfile"
+    ],
+    "utis": [
+      "com.docker.dockerfile",
+      "org.quicklook.preview.containerfile"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.containerfile",
+        "extensions": [
+          "containerfile"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "diff",
+    "language": "diff",
+    "mode": "code",
+    "extensions": [
+      "diff",
+      "patch"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.patch-file",
+      "org.n8gray.diff-script"
+    ]
+  },
+  {
+    "id": "xml",
+    "language": "xml",
+    "mode": "code",
+    "extensions": [
+      "xml",
+      "xsd",
+      "xsl",
+      "xslt",
+      "xib",
+      "storyboard",
+      "wsdl",
+      "pom",
+      "resx",
+      "csproj",
+      "props",
+      "targets"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.xml",
+      "com.apple.interfacebuilder.document.storyboard",
+      "com.apple.interfacebuilder.document",
+      "com.microsoft.csharp-project",
+      "org.quicklook.preview.xml-source",
+      "com.apple.dt.interfacebuilder.document.storyboard",
+      "com.apple.interfacebuilder.document.cocoa",
+      "org.w3.xsl"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.xml-source",
+        "extensions": [
+          "xsd",
+          "xslt",
+          "wsdl",
+          "pom",
+          "resx",
+          "csproj",
+          "props",
+          "targets"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "plist",
+    "language": "xml",
+    "mode": "code",
+    "extensions": [
+      "plist",
+      "entitlements",
+      "mobileconfig",
+      "stringsdict"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.apple.property-list",
+      "com.apple.xml-property-list",
+      "com.apple.xcode.entitlements-property-list",
+      "com.apple.mobileconfig",
+      "com.apple.xcode.strings-dictionary"
+    ],
+    "routingNotes": "The text renderer handles XML plists; binary plist conversion is outside this registry and must be implemented separately before claiming it."
+  },
+  {
+    "id": "strings",
+    "language": "properties",
+    "mode": "code",
+    "extensions": [
+      "strings"
+    ],
+    "filenames": [],
+    "utis": [
+      "com.apple.xcode.strings-text"
+    ]
+  },
+  {
+    "id": "hcl",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "hcl",
+      "tf",
+      "tfvars"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.hcl"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.hcl",
+        "extensions": [
+          "hcl",
+          "tf",
+          "tfvars"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "Plain source view, without dedicated syntax highlighting in the first renderer."
+  },
+  {
+    "id": "nix",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "nix"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.nix"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.nix",
+        "extensions": [
+          "nix"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "Plain source view, without dedicated syntax highlighting in the first renderer."
+  },
+  {
+    "id": "zig",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "zig",
+      "zon"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.zig"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.zig",
+        "extensions": [
+          "zig",
+          "zon"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "Plain source view, without dedicated syntax highlighting in the first renderer."
+  },
+  {
+    "id": "elixir",
+    "language": "elixir",
+    "mode": "code",
+    "extensions": [
+      "ex",
+      "exs"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.elixir-lang.source"
+    ],
+    "routingNotes": "The .exs suffix can resolve to Logic sampler data. com.apple.logic.exs is deliberately excluded."
+  },
+  {
+    "id": "erlang",
+    "language": "erlang",
+    "mode": "code",
+    "extensions": [
+      "erl",
+      "hrl"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.erlang.erlang-source"
+    ]
+  },
+  {
+    "id": "haskell",
+    "language": "haskell",
+    "mode": "code",
+    "extensions": [
+      "hs",
+      "lhs"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.haskell.haskell-source",
+      "org.haskell.haskell-script",
+      "org.haskell.literate-haskell-source",
+      "org.haskell.haskell"
+    ]
+  },
+  {
+    "id": "clojure",
+    "language": "clojure",
+    "mode": "code",
+    "extensions": [
+      "clj",
+      "cljs",
+      "cljc",
+      "edn"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.clojure.script",
+      "org.quicklook.preview.edn"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.edn",
+        "extensions": [
+          "edn"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "EDN can resolve to Adobe DRM metadata. com.adobe.edn is deliberately excluded."
+  },
+  {
+    "id": "lisp",
+    "language": "lisp",
+    "mode": "code",
+    "extensions": [
+      "el",
+      "lisp",
+      "lsp"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.gnu.emacs-lisp",
+      "org.n8gray.lisp",
+      "com.macromates.textmate.lisp",
+      "com.coteditor.lisp"
+    ]
+  },
+  {
+    "id": "scheme",
+    "language": "scheme",
+    "mode": "code",
+    "extensions": [
+      "scm",
+      "ss",
+      "rkt"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.n8gray.scheme-source",
+      "com.coteditor.scheme",
+      "org.racket-lang.source"
+    ]
+  },
+  {
+    "id": "ocaml",
+    "language": "ocaml",
+    "mode": "code",
+    "extensions": [
+      "ml",
+      "mli"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.ocaml.ocaml-source",
+      "org.ocaml.ocaml-interface"
+    ]
+  },
+  {
+    "id": "verilog",
+    "language": "verilog",
+    "mode": "code",
+    "extensions": [
+      "v",
+      "sv",
+      "vh",
+      "svh"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.n8gray.verilog",
+      "com.coteditor.verilog",
+      "org.quicklook.preview.systemverilog"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.systemverilog",
+        "extensions": [
+          "sv",
+          "vh",
+          "svh"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "vhdl",
+    "language": "vhdl",
+    "mode": "code",
+    "extensions": [
+      "vhd",
+      "vhdl"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.n8gray.vhdl",
+      "com.coteditor.vhdl"
+    ]
+  },
+  {
+    "id": "assembly",
+    "language": "x86asm",
+    "mode": "code",
+    "extensions": [
+      "asm",
+      "s",
+      "nasm"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.asm.source",
+      "public.assembly-source",
+      "public.nasm-assembly-source"
+    ]
+  },
+  {
+    "id": "powershell",
+    "language": "powershell",
+    "mode": "code",
+    "extensions": [
+      "ps1",
+      "psm1",
+      "psd1"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.sbarex.ms-powershell",
+      "org.sbarex.ms-powershell-module",
+      "org.sbarex.ms-powershell-module-manifest"
+    ]
+  },
+  {
+    "id": "batch",
+    "language": "dos",
+    "mode": "code",
+    "extensions": [
+      "bat",
+      "cmd"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.n8gray.bat"
+    ]
+  },
+  {
+    "id": "latex",
+    "language": "latex",
+    "mode": "code",
+    "extensions": [
+      "tex",
+      "sty",
+      "cls",
+      "ltx",
+      "latex"
+    ],
+    "filenames": [],
+    "utis": [
+      "public.tex",
+      "org.tug.tex",
+      "edu.uo.texshop.tex",
+      "com.barebones.bbedit.tex-source",
+      "org.quicklook.preview.latex-source"
+    ],
+    "imports": [
+      {
+        "identifier": "org.tug.tex",
+        "extensions": [
+          "tex",
+          "sty",
+          "cls",
+          "ltx",
+          "latex"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.latex-source",
+        "extensions": [
+          "ltx"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ],
+    "routingNotes": "The .ltx suffix resolved to a dynamic preferred type and metadata-only Finder preview on the observed machine despite a public.tex candidate. A product-owned plain-text LaTeX fallback is declared only for .ltx; other LaTeX suffix declarations are unchanged and real Finder selection must be rechecked after installation."
+  },
+  {
+    "id": "bibtex",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "bib"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.tug.tex.bibtex",
+      "org.tug.bibtex.bib"
+    ]
+  },
+  {
+    "id": "restructuredtext",
+    "language": "plaintext",
+    "mode": "code",
+    "extensions": [
+      "rst"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.python.restructuredtext"
+    ]
+  },
+  {
+    "id": "asciidoc",
+    "language": "asciidoc",
+    "mode": "code",
+    "extensions": [
+      "adoc",
+      "asciidoc"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.asciidoc"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.asciidoc",
+        "extensions": [
+          "adoc",
+          "asciidoc"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "wasm-text",
+    "language": "wasm",
+    "mode": "code",
+    "extensions": [
+      "wat",
+      "wast"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.wasm-text"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.wasm-text",
+        "extensions": [
+          "wat",
+          "wast"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "shader",
+    "language": "glsl",
+    "mode": "code",
+    "extensions": [
+      "glsl",
+      "frag",
+      "vert",
+      "geom",
+      "tesc",
+      "tese",
+      "comp"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.khronos.glsl-source",
+      "org.khronos.glsl.fragment-shader",
+      "org.khronos.glsl.vertex-shader",
+      "org.quicklook.preview.shader-source",
+      "org.khronos.glsl.geometry-shader"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.shader-source",
+        "extensions": [
+          "tesc",
+          "tese",
+          "comp"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "cuda",
+    "language": "cpp",
+    "mode": "code",
+    "extensions": [
+      "cu",
+      "cuh"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.cuda"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.cuda",
+        "extensions": [
+          "cu",
+          "cuh"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arduino",
+    "language": "cpp",
+    "mode": "code",
+    "extensions": [
+      "ino"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.arduino.ino-source",
+      "org.arduino.source"
+    ]
+  },
+  {
+    "id": "d",
+    "language": "d",
+    "mode": "code",
+    "extensions": [
+      "d",
+      "di"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.dlang.d",
+      "org.dlang.d-source",
+      "org.quicklook.preview.d-interface"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.d-interface",
+        "extensions": [
+          "di"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nim",
+    "language": "nim",
+    "mode": "code",
+    "extensions": [
+      "nim",
+      "nims",
+      "nimble"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.sbarex.nim",
+      "org.quicklook.preview.nim-config"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.nim-config",
+        "extensions": [
+          "nims",
+          "nimble"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "awk",
+    "language": "awk",
+    "mode": "code",
+    "extensions": [
+      "awk"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.n8gray.awk",
+      "com.coteditor.awk"
+    ]
+  },
+  {
+    "id": "tcl",
+    "language": "tcl",
+    "mode": "code",
+    "extensions": [
+      "tcl",
+      "tk"
+    ],
+    "filenames": [],
+    "utis": [
+      "tk.tcl.tcl-source",
+      "org.quicklook.preview.tk-source"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.tk-source",
+        "extensions": [
+          "tk"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "coffeescript",
+    "language": "coffeescript",
+    "mode": "code",
+    "extensions": [
+      "coffee",
+      "litcoffee"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.coffee.source",
+      "org.quicklook.preview.literate-coffee"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.literate-coffee",
+        "extensions": [
+          "litcoffee"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "handlebars",
+    "language": "handlebars",
+    "mode": "code",
+    "extensions": [
+      "handlebars",
+      "hbs",
+      "mustache"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.handlebars"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.handlebars",
+        "extensions": [
+          "handlebars",
+          "hbs",
+          "mustache"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "haml",
+    "language": "haml",
+    "mode": "code",
+    "extensions": [
+      "haml"
+    ],
+    "filenames": [],
+    "utis": [
+      "info.haml.haml"
+    ]
+  },
+  {
+    "id": "erb",
+    "language": "erb",
+    "mode": "code",
+    "extensions": [
+      "erb"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.n8gray.railstemplate"
+    ]
+  },
+  {
+    "id": "vim",
+    "language": "vim",
+    "mode": "code",
+    "extensions": [
+      "vim"
+    ],
+    "filenames": [
+      ".vimrc",
+      ".gvimrc"
+    ],
+    "utis": [
+      "org.vim.vim-script"
+    ],
+    "imports": [
+      {
+        "identifier": "org.vim.vim-script",
+        "extensions": [
+          "vim"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "http",
+    "language": "http",
+    "mode": "code",
+    "extensions": [
+      "http",
+      "rest"
+    ],
+    "filenames": [],
+    "utis": [
+      "org.quicklook.preview.http-request"
+    ],
+    "exports": [
+      {
+        "identifier": "org.quicklook.preview.http-request",
+        "extensions": [
+          "http",
+          "rest"
+        ],
+        "conformsTo": [
+          "public.plain-text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "nginx",
+    "language": "nginx",
+    "mode": "code",
+    "extensions": [],
+    "filenames": [
+      "nginx.conf"
+    ],
+    "utis": [],
+    "routingNotes": "nginx.conf has an exact-name rendering override, but no reliable filename-only routing guarantee."
+  }
+]

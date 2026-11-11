@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a preview, installation or rendering problem.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For security issues, follow SECURITY.md. Share only synthetic or redacted samples; remove private document content, paths and identifiers from diagnostics.
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: macOS version, Apple Silicon or Intel, Quicklook version/build, and installation location.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps and minimal example
+      description: Include the suffix or exact filename, extension status, and a small safe example if available.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: Distinguish Finder Space preview, the built-in sample check, and opening a document in the host app. Mention other Quick Look providers if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Optional diagnostic details
+      description: Paste a reviewed excerpt or screenshot. Do not include private files, credentials or full unreviewed logs.

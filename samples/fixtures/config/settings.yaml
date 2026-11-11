@@ -1,0 +1,10 @@
+# 保留注释
+name: 轻量预览
+enabled: true
+defaults: &defaults
+  timeout: 30
+server:
+  <<: *defaults
+  query: |
+    SELECT id, name FROM files
+    WHERE extension = 'md';

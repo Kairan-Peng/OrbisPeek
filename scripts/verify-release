@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""Verify a release app or the ZIP/DMG artifacts named by its manifest."""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import plistlib
+import re
+import subprocess
+import sys
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def run(command):
+    result = subprocess.run([str(part) for part in command], capture_output=True, text=True)
+    if result.returncode:
+        raise RuntimeError(f"Command failed ({result.returncode}): {command[0]}\n{result.stdout[-2500:]}{result.stderr[-2500:]}")
+    return result.stdout, result.stderr
+
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def tree_hash(app):
+    digest = hashlib.sha256()
+    for item in sorted(app.rglob("*")):
+        if item.is_symlink():
+            value = "link:" + os.readlink(item)
+        elif item.is_file():
+            value = sha256(item)
+        else:
+            continue
+        digest.update(item.relative_to(app).as_posix().encode() + b"\0" + value.encode() + b"\0")
+    return digest.hexdigest()
+
+
+def require(condition, message):
+    if not condition:
+        raise RuntimeError(message)
+
+
+def verify_app(app, expected_architectures=None):
+    app = app.resolve()
+    require(app.is_dir() and app.suffix == ".app", f"Not an application bundle: {app}")
+    # Share signing, sandbox, license and system-type gates with installed-app acceptance.
+    command = [sys.executable, ROOT / "scripts/validate-installed.py", app, "--mode", "release"]
+    for architecture in expected_architectures or []:
+        command.extend(["--expect-arch", architecture])
+    acceptance = json.loads(run(command)[0])
+    require(acceptance["summary"]["passed"], "Installed-app release acceptance failed.")
+    metadata = acceptance["metadata"]
+    extension = app / "Contents/PlugIns/QuicklookPreview.appex"
+    infos = [plistlib.loads((bundle / "Contents/Info.plist").read_bytes()) for bundle in (app, extension)]
+    host_info, extension_info = infos
+    require(all(info.get("QuicklookBuildConfiguration") == "Release" for info in infos), "Host and extension must both identify this as a Release build.")
+    architecture_sets = [sorted(metadata[f"{label}Architectures"]) for label in ("host", "extension")]
+    require(architecture_sets[0] == architecture_sets[1], "Host and extension architecture sets differ.")
+    if expected_architectures:
+        require(architecture_sets[0] == sorted(expected_architectures), "The exact release architecture set differs from the requested set.")
+    team = metadata["hostSignature"]["teamIdentifier"]
+    group = host_info.get("QuicklookAppGroup", "")
+    if group:
+        require(group.startswith(team + "."), "App Group must use the signing team's prefix.")
+        for label in ("host", "extension"):
+            require(metadata[f"{label}Entitlements"].get("com.apple.security.files.bookmarks.app-scope") is True,
+                    "App-scoped bookmark entitlement is missing.")
+    executables = []
+    for bundle, info in zip((app, extension), infos):
+        executable = bundle / "Contents/MacOS" / info["CFBundleExecutable"]
+        resources = bundle / "Contents/Resources"
+        for license_name in ("Quicklook-LICENSE.txt", "FreeLook-LICENSE.txt", "QLStephenSwift-LICENSE.txt", "THIRD_PARTY_NOTICES.txt"):
+            require(any(resources.rglob(license_name)), f"Missing {license_name} in {bundle.name}.")
+        executables.append({"path": executable.relative_to(app).as_posix(), "sha256": sha256(executable)})
+    return {
+        "bundleIdentifier": host_info["CFBundleIdentifier"],
+        "version": host_info["CFBundleShortVersionString"],
+        "build": host_info["CFBundleVersion"],
+        "minimumMacOS": host_info.get("LSMinimumSystemVersion"),
+        "architectures": architecture_sets[0],
+        "signingTeam": team,
+        "directoryAccess": bool(group),
+        "hardenedRuntime": True,
+        "executables": executables,
+        "treeSHA256": tree_hash(app),
+    }
+
+
+def compare_app(app, manifest):
+    result = verify_app(app, manifest["app"]["architectures"])
+    require(result == manifest["app"], "Packaged app differs from the release manifest.")
+    return result
+
+
+def verify_manifest(path):
+    manifest = json.loads(path.read_text())
+    require(manifest.get("schemaVersion") == 1, "Unsupported manifest schema.")
+    require(manifest.get("configuration") == "Release", "This is not a Release manifest.")
+    artifacts = manifest["artifacts"]
+    require({item["kind"] for item in artifacts} == {"zip", "dmg"} and len(artifacts) == 2, "The release must contain one ZIP and one DMG.")
+    results = []
+    (ROOT / ".build").mkdir(exist_ok=True)
+    for item in artifacts:
+        require(Path(item["file"]).name == item["file"], "Artifact paths must be plain filenames.")
+        artifact = path.parent / item["file"]
+        require(artifact.is_file() and artifact.stat().st_size == item["bytes"], f"Artifact size mismatch: {artifact.name}")
+        require(sha256(artifact) == item["sha256"], f"Artifact SHA-256 mismatch: {artifact.name}")
+        with tempfile.TemporaryDirectory(prefix="verify-release-", dir=ROOT / ".build") as temporary:
+            destination = Path(temporary)
+            if item["kind"] == "zip":
+                run(["ditto", "-xk", artifact, destination])
+                extracted_app = destination / "Quicklook.app"
+                compare_app(extracted_app, manifest)
+                if manifest["notarization"]["status"] == "accepted":
+                    run(["xcrun", "stapler", "validate", extracted_app])
+                    run(["spctl", "--assess", "--type", "execute", extracted_app])
+            else:
+                run(["hdiutil", "verify", artifact])
+                run(["codesign", "--verify", "--strict", artifact])
+                mount = destination / "mounted"
+                mount.mkdir()
+                attached = False
+                try:
+                    run(["hdiutil", "attach", "-readonly", "-nobrowse", "-noautoopen", "-mountpoint", mount, artifact])
+                    attached = True
+                    compare_app(mount / "Quicklook.app", manifest)
+                    require((mount / "Applications").is_symlink() and os.readlink(mount / "Applications") == "/Applications", "The DMG installation shortcut is missing.")
+                    if manifest["notarization"]["status"] == "accepted":
+                        run(["xcrun", "stapler", "validate", artifact])
+                finally:
+                    if attached:
+                        run(["hdiutil", "detach", mount])
+            results.append({"artifact": artifact.name, "verified": True})
+    return {"verified": True, "app": manifest["app"], "artifacts": results, "notarization": manifest["notarization"]}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("path", type=Path, help="Quicklook.app or release manifest JSON")
+    parser.add_argument("--architectures", help="Expected comma-separated Mach-O architectures")
+    parser.add_argument("--json", action="store_true", help="Output the complete machine-readable result")
+    args = parser.parse_args()
+    try:
+        path = args.path.resolve()
+        result = verify_app(path, args.architectures.split(",") if args.architectures else None) if path.suffix == ".app" else verify_manifest(path)
+        if args.json:
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+        else:
+            print(f"Release verification passed: {path}")
+            print(json.dumps(result, ensure_ascii=False))
+    except (OSError, ValueError, KeyError, RuntimeError) as error:
+        print(f"Release verification failed: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

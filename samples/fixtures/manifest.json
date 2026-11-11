@@ -1,0 +1,534 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "path": "samples/fixtures/markdown/basic.md",
+      "expectation": "preview",
+      "mode": "markdown",
+      "sourceEncoding": "utf-8",
+      "bytes": 518,
+      "sha256": "5842cfca11340a4c586d70df6c1cfd39ddcc5022c7fca0a370372e443238fedd",
+      "characters": 346
+    },
+    {
+      "path": "samples/fixtures/markdown/resources.md",
+      "expectation": "preview",
+      "mode": "markdown",
+      "sourceEncoding": "utf-8",
+      "bytes": 760,
+      "sha256": "789de34a12379e7d2734ff76a01c7cdd471006015e2f23b0a37a396c60c05069",
+      "characters": 538,
+      "note": "Only the first two raster images may load; test in the real extension as well as render probe."
+    },
+    {
+      "path": "samples/fixtures/markdown-local-images.md",
+      "expectation": "preview",
+      "mode": "markdown",
+      "sourceEncoding": "utf-8",
+      "bytes": 309,
+      "sha256": "cf16bd994dd9411f8cc44de8671ba3731c65ce4f89702891d0c6b1ec0789b72f",
+      "characters": 176,
+      "note": "A concise fixture for real Finder extension local-image access; host rendering alone is insufficient."
+    },
+    {
+      "path": "samples/fixtures/data/valid.json",
+      "expectation": "preview",
+      "mode": "json",
+      "sourceEncoding": "utf-8",
+      "bytes": 78,
+      "sha256": "56b36fcd6207e1c6e6e506fb0b5634cc861aaa71e9cdbb5d68bfca4d1455f03c",
+      "characters": 70
+    },
+    {
+      "path": "samples/fixtures/data/large-integer-duplicate-keys.json",
+      "expectation": "preview",
+      "mode": "json",
+      "sourceEncoding": "utf-8",
+      "bytes": 94,
+      "sha256": "ac173670466bf0cd3ee0860ec8ed44f61de6f16d0814c5385bd75e5df30d15a9",
+      "characters": 90,
+      "note": "Rendering/formatting must retain both duplicate keys and every digit, not JSON.parse/stringify the source."
+    },
+    {
+      "path": "samples/fixtures/data/invalid.json",
+      "expectation": "preview",
+      "mode": "json",
+      "sourceEncoding": "utf-8",
+      "bytes": 49,
+      "sha256": "ed607c006f34fc591ba2ca64be3c19b77067a4af5cb17b8210347aac58cc5e36",
+      "characters": 45,
+      "note": "Loader succeeds; renderer must retain readable raw text and explain parse failure."
+    },
+    {
+      "path": "samples/fixtures/data/valid.jsonl",
+      "expectation": "preview",
+      "mode": "jsonl",
+      "sourceEncoding": "utf-8",
+      "bytes": 92,
+      "sha256": "58a3e06ee22afc28512ee29ddfbdd17cf98444ca5d5270d0978870a7abc43f05",
+      "characters": 80
+    },
+    {
+      "path": "samples/fixtures/data/bad-middle-row.jsonl",
+      "expectation": "preview",
+      "mode": "jsonl",
+      "sourceEncoding": "utf-8",
+      "bytes": 97,
+      "sha256": "72420d109e44bdd1ed105939584ef1f1d8495d26b7a90f1d1d743183b0a02e3b",
+      "characters": 75,
+      "note": "One malformed record must not hide the valid record after it; preserve line numbers including blank lines."
+    },
+    {
+      "path": "samples/fixtures/data/script-string.ndjson",
+      "expectation": "preview",
+      "mode": "jsonl",
+      "sourceEncoding": "utf-8",
+      "bytes": 92,
+      "sha256": "1e7363abd4df2596f40f0d61442abce7b356701a9fc84428ac691cb30091301c",
+      "characters": 92
+    },
+    {
+      "path": "samples/fixtures/data/comments.jsonc",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 61,
+      "sha256": "84edb8c9d253666004a0032b42b5aaed32ea96915a8041a3e431248ba08bc29f",
+      "characters": 57
+    },
+    {
+      "path": "samples/fixtures/data/example.json5",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 93,
+      "sha256": "e36063758678809448b85e3c3982a82c35ab4e054e485494b512b8fc696907e8",
+      "characters": 89
+    },
+    {
+      "path": "samples/fixtures/config/settings.yaml",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 176,
+      "sha256": "bb64b0013f8f2e425842d169803d6f00f50830117421879db906399339f1ebe5",
+      "characters": 160
+    },
+    {
+      "path": "samples/fixtures/config/settings.yml",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 55,
+      "sha256": "9dd833708b54034625021f2626224a4f42a9869f965d2a0db6a89fa81c863531",
+      "characters": 47
+    },
+    {
+      "path": "samples/fixtures/config/settings.toml",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 101,
+      "sha256": "52d2fb275ca6ebd8cf01ef1f7b6f7d9b8df14789d6441ad4131d4601770f1477",
+      "characters": 81
+    },
+    {
+      "path": "samples/fixtures/config/application.properties",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 119,
+      "sha256": "ea2407007679b835451b9ffa3f95a4fbabb787545463847c681840805c03aa8b",
+      "characters": 111
+    },
+    {
+      "path": "samples/fixtures/config/settings.ini",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 77,
+      "sha256": "9fd817b696e87c62fa2afd00397e5bc9f24b09ccfbfee7aa5e8d89d1f9d50d1b",
+      "characters": 65
+    },
+    {
+      "path": "samples/fixtures/config/settings.conf",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 95,
+      "sha256": "dbb217e840aec777b0ac0ecf618eb3719926deb7aabee5b4a32edd3720afc650",
+      "characters": 95
+    },
+    {
+      "path": "samples/fixtures/config/settings.cfg",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 65,
+      "sha256": "94f0772ed1494faef05f6c3efb355c2e123ba524423e71b09eb6649027901e73",
+      "characters": 57
+    },
+    {
+      "path": "samples/fixtures/config/.env",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 136,
+      "sha256": "3492bf1b65104a5a8d134baf339aa4f7c48167959ed58e12cd6b3f89406b6e57",
+      "characters": 110
+    },
+    {
+      "path": "samples/fixtures/config/.gitignore",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 28,
+      "sha256": "4d6a0d594dbe00407ef08fdf7d459fdb8fe527b27f6ab457b0c70e8e8315188a",
+      "characters": 28
+    },
+    {
+      "path": "samples/fixtures/config/.zshrc",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 81,
+      "sha256": "bf568a93fb09995fe91ef57b409d5106da505d9c735641431fa0d2f1d75bc0f3",
+      "characters": 63
+    },
+    {
+      "path": "samples/fixtures/config/Dockerfile",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 59,
+      "sha256": "f083d38d7009c20795905c3e3a3f8d6f60fb1e5f500db34727bcefc7eec4a5ca",
+      "characters": 55
+    },
+    {
+      "path": "samples/fixtures/config/Makefile",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 68,
+      "sha256": "0ac0e1c49125c94e7db403c7dc08148612a734d9275f8ed897320a23a9593390",
+      "characters": 46
+    },
+    {
+      "path": "samples/fixtures/config/README",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 102,
+      "sha256": "6a23cf99fac0d9da633eb473f5e1aef57331067b8f1470dbf60a1ecad0728393",
+      "characters": 40
+    },
+    {
+      "path": "samples/fixtures/code/hello.swift",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 70,
+      "sha256": "7789aa3097617b7c62411ce33dd42a3dde3817762fc422546e45a4db746efaab",
+      "characters": 64
+    },
+    {
+      "path": "samples/fixtures/code/hello.py",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 114,
+      "sha256": "1b8ea5051b36ff13e0ad71f033ce472b72c8c861cd959231f5ece61c54642d36",
+      "characters": 98
+    },
+    {
+      "path": "samples/fixtures/code/hello.js",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 105,
+      "sha256": "19f078fe3565944e5dc055445b7ecbeb7d0cb1343bb6d0bebef2b70a62692bd9",
+      "characters": 101
+    },
+    {
+      "path": "samples/fixtures/code/hello.ts",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 112,
+      "sha256": "cd7d6cf66d124901d2cd771bd87e3dea1802770a8c7e59bd28c2ca2ed7d58c15",
+      "characters": 108
+    },
+    {
+      "path": "samples/fixtures/code/hello.tsx",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 87,
+      "sha256": "28d3c635acb8d2be29578612a4892f0cc5832d4050ca0f08dbcaa66833695c6b",
+      "characters": 83
+    },
+    {
+      "path": "samples/fixtures/code/hello.go",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 70,
+      "sha256": "c4023e3ce6e0059d9970018120609fd280a29fd8bddee516377e74dd9148f917",
+      "characters": 62
+    },
+    {
+      "path": "samples/fixtures/code/hello.rs",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 69,
+      "sha256": "04b1ec126dfc94ec67567da5c5313176393f8a64ce90d0a80f68f69dfa79caa4",
+      "characters": 61
+    },
+    {
+      "path": "samples/fixtures/code/Hello.java",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 96,
+      "sha256": "e669e313c19e1ba33768b1b39cad213a40aaff4c997bf9533addfcd7fd5db4bf",
+      "characters": 92
+    },
+    {
+      "path": "samples/fixtures/code/hello.c",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 65,
+      "sha256": "4b1663cc5684a1766c09f82fd44ba844a92520974f253eba7878578026683495",
+      "characters": 65
+    },
+    {
+      "path": "samples/fixtures/code/hello.cpp",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 77,
+      "sha256": "e1cdb3f4759d7664c573018e2d803fc90a623b50458fcc4e7f18aa7225cc9e4f",
+      "characters": 69
+    },
+    {
+      "path": "samples/fixtures/code/query.sql",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 85,
+      "sha256": "17e345745273df130c000f2cdadafcdb09623f362be34a723835687e7bab28c9",
+      "characters": 77
+    },
+    {
+      "path": "samples/fixtures/code/preview.sh",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 77,
+      "sha256": "bc5cc6dbf52ca53a8e5f64265fa4b5b6ea59e34bd2b2705aa85fc379c9631e41",
+      "characters": 69
+    },
+    {
+      "path": "samples/fixtures/code/style.css",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 65,
+      "sha256": "b13ef2715d9cc281f0d4e132f41602d60d1bde6c547d00120f107aeaa586efc2",
+      "characters": 57
+    },
+    {
+      "path": "samples/fixtures/code/change.diff",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 82,
+      "sha256": "b895bdbe413dd797ad8988f9f6a0fd3ce4769a0b5952eb296403a084d3b2e988",
+      "characters": 78
+    },
+    {
+      "path": "samples/fixtures/text/application.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 166,
+      "sha256": "cfc0b3a95ef06b079494288a2643fb5b5890dd97a8cc891f562d8c1f3109830c",
+      "characters": 120
+    },
+    {
+      "path": "samples/fixtures/text/empty.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "characters": 0
+    },
+    {
+      "path": "samples/fixtures/text/long-line.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 32779,
+      "sha256": "800414a2627a008695e93eae3ae8bd16d0c17f15bd76700b5d4bfbce9fd61409",
+      "characters": 28683,
+      "note": "Toggle wrapping; narrow preview must not make controls inaccessible."
+    },
+    {
+      "path": "samples/fixtures/text/system-preview.txt",
+      "expectation": "system",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 41,
+      "sha256": "affc2f726ea9050f8796357ec44bb7fb207e8431c2c9f939433f6c1d78e167b4",
+      "characters": 25,
+      "note": "Direct inspect can read this; real Finder provider should remain the system provider."
+    },
+    {
+      "path": "samples/fixtures/text/system-preview.html",
+      "expectation": "system",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 154,
+      "sha256": "2c0e1fb44f54593e202e8ec89ed4c1ac54765d5422adb2e73066487389e7bcb7",
+      "characters": 126
+    },
+    {
+      "path": "samples/fixtures/encoding/utf8.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8",
+      "bytes": 127,
+      "sha256": "a8e33a06352cd081c6cfb26c21c168a07945f36508e007d3c0c9e4fc5215d3cc",
+      "characters": 45
+    },
+    {
+      "path": "samples/fixtures/encoding/utf8-bom.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-8-sig",
+      "bytes": 130,
+      "sha256": "f5998379dfff34a15bc812a6b452fd70006dcfcd643b1be9e53cbaa9fbbb92c4",
+      "characters": 45
+    },
+    {
+      "path": "samples/fixtures/encoding/utf16-le-bom.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "UTF-16 LE BOM",
+      "bytes": 92,
+      "sha256": "65500dec68b7f9ae350a36b2536ea19e01281bb7182eaa169186379ced8a3cda"
+    },
+    {
+      "path": "samples/fixtures/encoding/utf16-be-bom.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "UTF-16 BE BOM",
+      "bytes": 92,
+      "sha256": "3b4078e3107e1d0dd45921dcea2b2dc92aa2ca30e14e2466ccfdf8e6197cdaec"
+    },
+    {
+      "path": "samples/fixtures/encoding/utf16-le-no-bom.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-16-le",
+      "bytes": 94,
+      "sha256": "ad9e17103a2bf6ded03c7ef8c5cebfb891aea12fda210b963f1fb99ed084d2c7",
+      "characters": 47,
+      "note": "ASCII-heavy BOMless UTF-16 pattern should be inferred before NUL binary detection."
+    },
+    {
+      "path": "samples/fixtures/encoding/utf16-be-no-bom.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "utf-16-be",
+      "bytes": 94,
+      "sha256": "53aa9efded3e686b2e4e03cb1cd43e417289792e75f4e926934f0d3d078c3a91",
+      "characters": 47
+    },
+    {
+      "path": "samples/fixtures/encoding/gb18030-short.log",
+      "expectation": "heuristic",
+      "mode": "code",
+      "sourceEncoding": "gb18030",
+      "bytes": 8,
+      "sha256": "fd62f96836c3057f552e61d03d3eb3974aeb287486fc48f4a2d8f1aecd994587",
+      "characters": 4,
+      "note": "Very short legacy-encoding inputs are ambiguous; inspect alone cannot prove the displayed text is correct."
+    },
+    {
+      "path": "samples/fixtures/encoding/gb18030-medium.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "gb18030",
+      "bytes": 688,
+      "sha256": "d15df35ff82d0be6bd61deb07993295723636e35221f7912e07f957364fc5f0d",
+      "characters": 360
+    },
+    {
+      "path": "samples/fixtures/encoding/gb18030-long.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "gb18030",
+      "bytes": 44032,
+      "sha256": "78af7f4c746d7128904d6e45accc6fe328daa2b7bb86f28370bb15773699a4c9",
+      "characters": 23040
+    },
+    {
+      "path": "samples/fixtures/encoding/gb18030-four-byte.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "gb18030",
+      "bytes": 888,
+      "sha256": "fb8ab5f296b9f03d0064b6ae8406c4ad5d2f26c1d7fcd6c5e399188a2e87bee3",
+      "characters": 456
+    },
+    {
+      "path": "samples/fixtures/encoding/gbk.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "gbk",
+      "bytes": 688,
+      "sha256": "d15df35ff82d0be6bd61deb07993295723636e35221f7912e07f957364fc5f0d",
+      "characters": 360
+    },
+    {
+      "path": "samples/fixtures/encoding/big5.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "big5",
+      "bytes": 672,
+      "sha256": "11078ea3382d7148d6f6ebbf76d262082fb21099de84fc40f5ce9781d0c5be12",
+      "characters": 352
+    },
+    {
+      "path": "samples/fixtures/encoding/shift-jis.log",
+      "expectation": "preview",
+      "mode": "code",
+      "sourceEncoding": "shift_jis",
+      "bytes": 896,
+      "sha256": "14b451a3b3b1f8e606cc73794d9d57f972d4e5a5c45f5bc4be1e91962bbb7d07",
+      "characters": 464
+    },
+    {
+      "path": "samples/fixtures/binary/image-disguised-as-log.log",
+      "expectation": "reject",
+      "mode": "code",
+      "sourceEncoding": "binary",
+      "bytes": 314,
+      "sha256": "4eaffda311a30c12783f504015b6428c46882d2b59a3b2530e3f5e0f3e00dca4",
+      "note": "PNG signature and binary content must be rejected even with a .log suffix."
+    },
+    {
+      "path": "samples/fixtures/binary/invalid-utf16-bom.log",
+      "expectation": "reject",
+      "mode": "code",
+      "sourceEncoding": "invalid UTF-16",
+      "bytes": 3,
+      "sha256": "e338b52c1bba42031362180fb1465d6e8b382881cb2f2601e30e971f21e4901c",
+      "note": "Odd trailing byte must not be silently discarded by Foundation."
+    }
+  ]
+}

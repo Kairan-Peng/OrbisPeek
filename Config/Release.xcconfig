@@ -1,0 +1,10 @@
+// Release behavior shared by local and distribution signing.
+ENABLE_DEBUG_DYLIB = NO
+CODE_SIGN_INJECT_BASE_ENTITLEMENTS = NO
+ENABLE_HARDENED_RUNTIME = YES
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+SWIFT_OPTIMIZATION_LEVEL = -O
+// Embedded extensions are already signed; do not try to strip them while copying.
+COPY_PHASE_STRIP = NO
+STRIP_INSTALLED_PRODUCT = YES
+ONLY_ACTIVE_ARCH = NO

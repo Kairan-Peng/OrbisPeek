@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "policyID": "preserve-system-format-compatibility",
+  "policyVersion": "1.0.0",
+  "decision": {
+    "authority": "user",
+    "date": "2026-11-11",
+    "summary": "用户明确选择保留 ts、mts、edn、exs 的原系统格式兼容，公开标注这四项文本预览限制；实际已观察到的元数据预览可以满足独立的兼容边界验收，但不能计为正文内容通过。"
+  },
+  "acceptedLimitations": [
+    {
+      "caseID": "typescript.ts",
+      "reason": ".ts 同时用于 MPEG 传输流视频。保留 macOS 原视频类型兼容，不为 TypeScript 强占该后缀；本轮文本样本仅显示文件元数据，未显示正文。"
+    },
+    {
+      "caseID": "typescript.mts",
+      "reason": ".mts 同时用于 MPEG 传输流视频。保留 macOS 原视频类型兼容，不为 TypeScript 强占该后缀；本轮文本样本仅显示文件元数据，未显示正文。"
+    },
+    {
+      "caseID": "clojure.edn",
+      "reason": ".edn 可被识别为 Adobe DRM 元数据。保留 Adobe 格式兼容，不接管 com.adobe.edn；本轮文本样本仅显示文件元数据，未显示 EDN 正文。"
+    },
+    {
+      "caseID": "elixir.exs",
+      "reason": ".exs 可用于 Logic 采样器数据。保留 Logic / GarageBand 格式兼容，不接管 com.apple.logic.exs；本轮文本样本仅显示文件元数据，未显示 Elixir 正文。"
+    }
+  ]
+}

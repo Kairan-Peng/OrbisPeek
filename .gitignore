@@ -1,0 +1,28 @@
+# Generated builds and local tool state
+/.build/
+/.swiftpm/
+.DS_Store
+*.xcodeproj/
+WebRenderer/node_modules/
+/dist/
+*.xcuserstate
+xcuserdata/
+__pycache__/
+*.pyc
+/*.log
+
+# Local configuration and signing credentials; keep the inert test fixture.
+.env
+.env.*
+!.env.example
+!samples/fixtures/config/.env
+/.npmrc
+*.p12
+*.pfx
+*.p8
+*.key
+*.pem
+*.keychain
+*.keychain-db
+*.mobileprovision
+*.provisionprofile

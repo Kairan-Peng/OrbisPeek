@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src quicklook-resource:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>Quicklook</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="renderer.js" defer></script>
+  </head>
+  <body class="empty wrap-lines">
+    <header class="toolbar">
+      <div class="document-info">
+        <div class="title-row"><span id="format-label">QUICKLOOK</span><h1 id="file-name">选择文件以预览</h1></div>
+        <div id="file-meta" class="file-meta">Markdown · 数据 · 配置 · 源码</div>
+      </div>
+      <nav class="actions" aria-label="预览选项">
+        <button id="source-toggle" type="button" aria-pressed="false">查看原文</button>
+        <button id="wrap-toggle" type="button" aria-pressed="true" title="切换长行自动换行">换行</button>
+        <button id="copy-button" type="button" title="复制当前显示的内容">复制</button>
+        <button id="find-button" type="button" title="查找当前预览中的文本">查找</button>
+      </nav>
+    </header>
+    <div id="search-bar" class="search-bar" hidden>
+      <input id="search-input" type="search" aria-label="查找文本" placeholder="查找当前预览…" spellcheck="false" autocomplete="off">
+      <span id="search-count" aria-live="polite"></span>
+      <button id="search-next" type="button">下一处</button>
+    </div>
+    <aside id="notices" class="notices" role="status" hidden></aside>
+    <main id="content" tabindex="0" aria-label="文件预览"><div class="empty-state">按下空格，直接阅读。</div></main>
+  </body>
+</html>

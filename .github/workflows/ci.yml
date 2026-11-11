@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Show toolchain versions
+        run: |
+          xcodebuild -version
+          swift --version
+          node --version
+          python3 --version
+      - name: Install renderer dependencies
+        run: npm --prefix WebRenderer ci --no-audit --no-fund
+      - name: Check generated types and run Swift and JavaScript tests
+        run: ./scripts/test
+      - name: Check Python and shell helpers
+        run: |
+          python3 -m unittest discover -s Tests/Acceptance -p 'test_*.py' -v
+          python3 -m py_compile scripts/*.py scripts/package-release scripts/verify-release
+          zsh -n scripts/build scripts/test
+      - name: Check generated renderer and license notices
+        run: |
+          npm --prefix WebRenderer run build
+          git diff --exit-code -- Sources/QuicklookUI/Resources WebRenderer/THIRD_PARTY.md
+      - name: Install XcodeGen
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          xcodegen --version
+      - name: Compile the universal app with local ad-hoc signing
+        run: |
+          ./scripts/build --configuration Release --architectures universal \
+            --derived-data .build/ci-derived --no-register
+          python3 scripts/validate-installed.py \
+            .build/ci-derived/Build/Products/Release/Quicklook.app \
+            --mode development --expect-arch arm64 --expect-arch x86_64 \
+            --output .build/ci-app-validation.json
+          python3 scripts/generate-types.py --check
+          git diff --exit-code -- Config/Preview-Info.plist docs/file-types.md \
+            Sources/QuicklookUI/Resources WebRenderer/THIRD_PARTY.md

@@ -1,0 +1,22 @@
+name: Feature or format request
+description: Suggest a document format or improvement.
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: What document or task is difficult to preview today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_behavior
+    attributes:
+      label: Proposed behavior
+      description: For a format request, include suffixes or exact filenames, desired rendering, and a synthetic example or public format specification.
+    validations:
+      required: true
+  - type: textarea
+    id: existing_options
+    attributes:
+      label: Existing behavior or reusable implementations
+      description: Mention native macOS support, alternatives, or upstream implementations and their licenses when known.
