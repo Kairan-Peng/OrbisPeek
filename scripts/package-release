@@ -80,9 +80,23 @@ def main():
             run(["ditto", "--norsrc", "--noextattr", built_app, app])
             (contents / "Applications").symlink_to("/Applications")
             (contents / "安装说明.txt").write_text(
-                "将 OrbisPeek.app 拖入 Applications，然后打开应用并启用快速查看扩展。\n"
-                "如果安装过同类预览插件，请在应用中查看冲突诊断。\n"
-                + ("此包已完成 Apple 公证。\n" if args.notarize_profile else "此包为本地签名测试版本，尚未提交 Apple 公证；不应作为已公证版本对外发布。\n"),
+                "OrbisPeek 安装与首次使用\n\n"
+                + ("此包已使用 Developer ID 签名并完成 Apple 公证。\n"
+                   if args.notarize_profile else
+                   "此包已使用 Developer ID 签名，但尚未提交 Apple 公证。\n"
+                   "首次打开可能被 macOS 阻止。确认从项目官方 Release 下载并核对 SHA-256 后，"
+                   "可在“系统设置 → 隐私与安全性”中按系统提示选择“仍要打开”。\n")
+                + "\n1. 将 OrbisPeek.app 拖入 Applications，然后打开应用。\n"
+                "2. 在“系统设置 → 通用 → 登录项与扩展 → 快速查看”中启用 OrbisPeek Preview。"
+                "若安装了同类预览插件，请在该系统页面选择要使用的扩展。\n"
+                + ("3. 如需读取 Markdown 中的本地图片，在 App 页面确认一次只读目录授权。"
+                   "系统选择窗口默认定位个人目录，也可选择其他项目或笔记目录；授权可在 App 中移除。\n"
+                   "4. “无后缀文本预览”默认关闭；可在 App 页面自行开启。"
+                   "它仅尝试符合条件的文本，不保证接管所有陌生后缀。\n"
+                   if app_result["directoryAccess"] else
+                   "此精简包不提供共享目录授权；“无后缀文本预览”开关不可用。\n")
+                + "\n在 Finder 中选中文件，按空格预览。更改目录授权或文本预览开关后，"
+                "请关闭并重新打开预览。HTML 保留系统预览；不提供查找功能。\n",
                 encoding="utf-8"
             )
             archive = staging / f"{stem}.zip"

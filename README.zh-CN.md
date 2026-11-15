@@ -4,6 +4,8 @@
 
 **按下空格，看见更多。**
 
+**[下载 v0.1.1 预览版](https://github.com/Kairan-Peng/OrbisPeek/releases/tag/v0.1.1)** — macOS 15+，Universal，build 1227。DMG / ZIP 已使用 Developer ID 签名，**尚未公证**，首次打开可能被系统拦截。安装前请阅读[安装、目录授权与限制说明](docs/installing.md)。
+
 一个开源、轻量的 macOS Quick Look 扩展。在 Finder 中选中文件，按空格阅读 Markdown、JSON/JSONL、配置、日志和源码。宿主提供应用介绍、目录授权管理和可选的无后缀文本预览开关。
 
 项目原名为 Quicklook。内部模块名、bundle identifier 和资源协议继续保留原名，以兼容已有配置。

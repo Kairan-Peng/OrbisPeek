@@ -6,6 +6,8 @@
 
 English · [简体中文](README.zh-CN.md)
 
+**[Download v0.1.1 Preview](https://github.com/Kairan-Peng/OrbisPeek/releases/tag/v0.1.1)** — macOS 15+, Universal, build 1227. The DMG / ZIP is Developer ID signed but **not notarized**; macOS may block first launch. Read the [installation, folder-permission and limitations guide](docs/installing.md) before installing.
+
 A lightweight, open-source macOS Quick Look extension. Select a document in Finder and press Space to preview Markdown, JSON / JSONL, configuration files, logs and source code. The host app provides an introduction, folder-permission management and an optional extensionless-text preview switch.
 
 OrbisPeek uses a native Swift host and Quick Look extension, a bounded text loader, and a shared WKWebView renderer. It runs on macOS 15 or newer and ships without Node or Electron.

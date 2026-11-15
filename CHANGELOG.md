@@ -1,8 +1,10 @@
 # Changelog
 
-User-visible changes are recorded here. No public release is declared by this development log.
+User-visible changes are recorded here. Development previews have incomplete platform coverage; notarization status is stated separately for each downloadable package.
 
-## Unreleased
+## 0.1.1 — 2026-11-15 (development preview)
+
+First downloadable OrbisPeek release, build 1227, for macOS 15+. The Developer ID signed DMG and ZIP contain a Universal (`arm64` + `x86_64`) app. This preview is **not notarized**. See the [installation and permissions guide](docs/installing.md) and [release notes](https://github.com/Kairan-Peng/OrbisPeek/releases/tag/v0.1.1).
 
 ### Changed
 

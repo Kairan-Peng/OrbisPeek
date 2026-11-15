@@ -1,8 +1,8 @@
 # Release 构建、打包与回退
 
-本轮交付本地可安装的签名测试包；没有上传公证、发布版本或重启系统。Release 构建和普通 Debug 构建分开存放，不覆盖已安装应用。
+本指南记录签名构建、打包与验收流程。Release 构建和普通 Debug 构建分开存放，不自动覆盖已安装应用。当前 0.1.1（1227）提供未公证预览安装包，用户步骤见[安装说明](installing.md)。
 
-用户已明确暂缓公证。本轮所有产物均保持 `notarization=not-submitted`；下文的显式公证入口只作为以后可复用的流程，不在本轮触发，也不继续询问凭据配置。
+当前发行明确不提交公证，产物保持 `notarization=not-submitted`；下文的显式公证入口只作为以后可复用的流程，不在本轮触发。
 
 本机已经跑通 `arm64 + x86_64` 的完整 Release 构建与打包：Developer ID、Hardened Runtime、目录授权、无调试注入和许可证检查通过；ZIP 解包与 DMG 只读挂载后的完整应用文件 hash、可执行文件 hash 和签名均一致。当前包的版本、构建号、体积与 hash 以 `dist/release/` 中的 manifest 为准。
 
@@ -84,7 +84,7 @@ SHA-256 用于检查下载完整性；不能单独证明某个下载源可信。
 
 该命令使用已存在的 notarytool 钥匙串 profile，构建时请求安全时间戳，将 ZIP 与 DMG 提交 Apple；只有 `Accepted` 才会继续装订和重建校验信息。没有在本轮执行此选项，也没有探测或创建 profile。公证失败则保留失败，不生成伪装为通过的发布 manifest。
 
-参考 [Apple 公证文档](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)。任何对外分发前应确认 manifest 为 `accepted`、票据装订验证通过，并在目标机器做实际安装验证。
+参考 [Apple 公证文档](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution)。面向普通用户的正式广泛分发应先完成公证、确认 manifest 为 `accepted`、票据装订验证通过，并在目标机器做实际安装验证。维护者明确授权的未公证预览发行可以保持 `not-submitted`，但发布页与安装说明必须醒目标注未公证、首次打开可能受阻及实际验证边界；不能改写为 `accepted`，也不以签名或包体校验代替 Gatekeeper 验收。当前 0.1.1（1227）采用这一预览发行方式，不上传公证；用户步骤见[安装说明](installing.md)。
 
 ## 安装与本轮验收
 
