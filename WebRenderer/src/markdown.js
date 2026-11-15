@@ -3,6 +3,7 @@
 // Full upstream license is retained in WebRenderer/licenses/FreeLook-MIT.txt.
 import MarkdownIt from "markdown-it";
 import { highlight, languageName } from "./languages.js";
+import { imageDimension, markdownImagePlugin } from "./markdown-images.js";
 
 export function escapeHTML(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -33,14 +34,18 @@ function taskListPlugin(markdownIt) {
   });
 }
 
-export function localImageURL(source) {
+// Native hosts always supply a request-scoped token and reject tokenless routes.
+// The optional argument preserves the standalone renderer API without a native bypass.
+export function localImageURL(source, resourceToken) {
+  if (resourceToken !== undefined && !/^[0-9A-F]{8}(?:-[0-9A-F]{4}){3}-[0-9A-F]{12}$/.test(resourceToken)) return null;
   let path;
   // Strip URL metadata before decoding: %3F and %23 can be literal filename characters.
   try { path = decodeURIComponent(String(source).split(/[?#]/, 1)[0]); } catch { return null; }
-  if (/^[a-z][a-z0-9+.-]*:/i.test(path) || path.startsWith("/") || /[\\\u0000-\u001f]/.test(path)) return null;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path.trimStart()) || path.trimStart().startsWith("/") || /[\\\u0000-\u001f\u007f]/.test(path)) return null;
   const components = path.split("/").filter((component) => component && component !== ".");
   if (!components.length || components.includes("..")) return null;
-  return `quicklook-resource://local/${components.map(encodeURIComponent).join("/")}`;
+  if (!/\.(?:png|jpe?g|gif|webp|heic|heif|bmp|tiff?)$/i.test(path)) return null;
+  return `quicklook-resource://local/${resourceToken ? `${resourceToken}/` : ""}${components.map(encodeURIComponent).join("/")}`;
 }
 
 const markdown = new MarkdownIt({
@@ -51,21 +56,26 @@ const markdown = new MarkdownIt({
     if (content.length > 150_000 || content.split("\n").some((line) => line.length > 8_000)) return escapeHTML(content);
     return highlight(content, languageName(language));
   },
-}).use(taskListPlugin);
+}).use(taskListPlugin).use(markdownImagePlugin);
 
 markdown.renderer.rules.image = (tokens, index, _options, environment) => {
   const token = tokens[index];
-  const source = localImageURL(token.attrGet("src") || "");
+  const source = localImageURL(token.attrGet("src") || "", environment.resourceToken);
   const alt = escapeHTML(token.content || "图片");
   if (!source) {
     environment.blockedImages += 1;
     return `<span class="blocked-image" role="img" aria-label="图片已阻止">图片已阻止：${alt}</span>`;
   }
   environment.localImages += 1;
-  return `<img src="${escapeHTML(source)}" alt="${alt}" loading="lazy" decoding="async">`;
+  const dimensions = ["width", "height"].map((name) => {
+    const value = imageDimension(token.attrGet(name));
+    return value ? ` ${name}="${value}"` : "";
+  }).join("");
+  return `<img src="${escapeHTML(source)}" alt="${alt}"${dimensions} loading="lazy" decoding="async">`;
 };
 
-export function renderMarkdown(text) {
-  const environment = { blockedImages: 0, localImages: 0 };
-  return { html: markdown.render(text, environment), ...environment };
+export function renderMarkdown(text, resourceToken) {
+  const environment = { blockedImages: 0, localImages: 0, resourceToken };
+  const html = markdown.render(text, environment);
+  return { html, blockedImages: environment.blockedImages, localImages: environment.localImages, resourceToken };
 }

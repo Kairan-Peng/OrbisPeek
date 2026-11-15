@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only validation of a built or installed Quicklook application.
+"""Read-only validation of a built or installed OrbisPeek application.
 
 This validates bundle contents and local registration evidence, not whether
 Finder has invoked the extension. It never installs, deletes, enables, repairs,
@@ -22,8 +22,11 @@ import sys
 DEFAULT_BUNDLE_ID = "org.quicklook.preview"
 DEFAULT_EXTENSION_ID = DEFAULT_BUNDLE_ID + ".extension"
 PRESERVED_TYPES = {
-    "public.data", "public.content", "public.text", "public.plain-text", "public.source-code",
-    "public.html", "public.xhtml", "com.adobe.pdf", "public.comma-separated-values-text",
+    "public.item", "public.content", "public.text", "public.plain-text", "public.source-code",
+    "public.html", "public.xhtml",
+    "public.xml-based-text", "com.adobe.pdf", "public.comma-separated-values-text",
+    "public.svg-image", "public.svg", "public.mpeg-2-transport-stream",
+    "public.avchd-mpeg-2-transport-stream", "com.apple.logic.exs", "com.adobe.edn", "com.apple.rez-source",
     "com.microsoft.word.doc", "com.microsoft.excel.xls", "com.microsoft.powerpoint.ppt",
     "org.openxmlformats.wordprocessingml.document", "org.openxmlformats.spreadsheetml.sheet",
     "org.openxmlformats.presentationml.presentation",

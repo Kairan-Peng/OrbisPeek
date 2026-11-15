@@ -5,9 +5,22 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Quicklook</string>
+	<string>OrbisPeek</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleURLName</key>
+			<string>org.quicklook.preview.image-access</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>orbispeek</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -23,7 +36,7 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 2026 Quicklook contributors</string>
+	<string>Copyright 2026 OrbisPeek contributors</string>
 	<key>QuicklookAppGroup</key>
 	<string>$(QUICKLOOK_APP_GROUP)</string>
 	<key>QuicklookBuildConfiguration</key>

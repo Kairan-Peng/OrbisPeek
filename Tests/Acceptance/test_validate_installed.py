@@ -10,6 +10,13 @@ SPEC.loader.exec_module(MODULE)
 
 
 class RegistrationParsingTests(unittest.TestCase):
+    def testDirectDataIsAllowedWhileHTMLAndOtherSystemTypesRemainProtected(self):
+        self.assertNotIn("public.data", MODULE.PRESERVED_TYPES)
+        self.assertTrue({"public.html", "public.xhtml", "public.item", "public.content",
+                         "public.text", "public.plain-text", "public.source-code",
+                         "public.xml-based-text", "com.adobe.pdf", "public.comma-separated-values-text",
+                         "org.openxmlformats.wordprocessingml.document"} <= MODULE.PRESERVED_TYPES)
+
     def test_preserves_election_states_multiple_copies_and_spaces_in_paths(self):
         identifier = MODULE.DEFAULT_EXTENSION_ID
         sample = "\n".join([

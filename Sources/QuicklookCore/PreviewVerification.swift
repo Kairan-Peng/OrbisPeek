@@ -196,10 +196,10 @@ public enum PreviewVerification {
 
     private static func expectedMode(for path: String) -> String? {
         switch URL(fileURLWithPath: path).lastPathComponent {
-        case "quicklook-sample.md": return "markdown"
-        case "quicklook-sample.json": return "json"
-        case "quicklook-sample.jsonl": return "jsonl"
-        case "quicklook-sample.toml": return "code"
+        case "orbispeek-sample.md": return "markdown"
+        case "orbispeek-sample.json": return "json"
+        case "orbispeek-sample.jsonl": return "jsonl"
+        case "orbispeek-sample.toml": return "code"
         default: return nil
         }
     }

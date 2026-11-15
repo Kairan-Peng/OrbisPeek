@@ -116,6 +116,35 @@ public enum DirectoryAccess {
         UserDefaults.standard.removeObject(forKey: activatedCacheKey)
     }
 
+    /// Removing one folder does not disturb other grants. Existing previews keep
+    /// their scope until closed; new previews must match the updated shared list.
+    public static func revoke(folderURL: URL) throws {
+        try revoke(folderURL: folderURL, storeURL: sharedStoreURL(), defaults: .standard)
+    }
+
+    static func revoke(folderURL: URL, storeURL: URL, defaults: UserDefaults) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        guard folderURL.isFileURL else { throw DirectoryAccessError.notDirectory }
+        var store = try readStore(at: storeURL)
+        // A listed folder may since have become a symlink. Remove that recorded
+        // path first, rather than accidentally revoking its new destination.
+        let requestedPath = folderURL.standardizedFileURL.path
+        let path = store.grants.contains(where: { $0.path == requestedPath })
+            ? requestedPath : canonical(folderURL).path
+        let removedIDs = Set(store.grants.filter { $0.path == path }.map(\.id))
+        guard !removedIDs.isEmpty else { return }
+        store.grants.removeAll { removedIDs.contains($0.id) }
+        // Publish revocation before touching local caches. Other processes reject
+        // a removed ID even if their own explicit bookmark remains cached.
+        try writeStore(store, to: storeURL)
+        for key in [hostCacheKey, activatedCacheKey] {
+            var cache = defaults.dictionary(forKey: key) ?? [:]
+            for id in removedIDs { cache.removeValue(forKey: id) }
+            defaults.set(cache, forKey: key)
+        }
+    }
+
     /// The host refreshes its ephemeral handoffs from its own persistent bookmarks.
     /// Extension processes have no host cache, so this remains a read there.
     public static func grantedPaths() -> [String] {

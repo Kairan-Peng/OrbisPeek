@@ -3,22 +3,27 @@
 Generate the complete suffix corpus from the product's authoritative type manifest:
 
 ```sh
-python3 scripts/make-coverage-fixtures.py
+python3 scripts/make-coverage-fixtures.py --output .build/finder-coverage-preview-interface
 python3 -m unittest discover -s Tests/Acceptance -p test_make_coverage_fixtures.py -v
 ```
 
 The generator writes these ignored, local acceptance artifacts:
 
-- `.build/finder-coverage/files/`: one UTF-8 text document per declared suffix.
-- `.build/finder-coverage/manifest.json`: exact suffix, absolute file path, format
+- `.build/finder-coverage-preview-interface/files/`: one UTF-8 text document per declared suffix.
+- `.build/finder-coverage-preview-interface/manifest.json`: exact suffix, absolute file path, format
   group, expected renderer mode, visible marker, source template and SHA-256.
-- `.build/finder-coverage/extensions.txt`: the complete ordered list of 227 suffixes.
-- `.build/finder-coverage/cua-cases.json`: compact `fileName` / `marker` / `extension`
+- `.build/finder-coverage-preview-interface/extensions.txt`: the complete ordered list of 230 suffixes.
+- `.build/finder-coverage-preview-interface/cua-cases.json`: compact `fileName` / `marker` / `extension`
   records for real Finder traversal; all markers appear in the first three lines.
 
-The current manifest has 227 suffixes across 85 suffix-bearing groups. There are
-86 total groups; nginx has filename rules only, so it has a template but adds no
+The current manifest has 230 suffixes across 86 suffix-bearing groups. There are
+87 total groups; nginx has filename rules only, so it has a template but adds no
 suffix case. No suffix is removed because of a possible macOS type conflict.
+
+The HTML group covers `.html`, `.htm` and `.xhtml`. Its marker is visible body
+text within the first three source lines; XHTML is well-formed XML. Use
+`--expected-count 230` with the reporter for this frozen batch. The historical
+227-case corpus and its observations remain separate and unchanged.
 
 These are representative **text syntax samples**, not complete applications,
 compilable interface products, production configurations, or exhaustive language

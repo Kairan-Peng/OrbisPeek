@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Quicklook Preview</string>
+	<string>OrbisPeek Preview</string>
 	<key>QuicklookAppGroup</key>
 	<string>$(QUICKLOOK_APP_GROUP)</string>
 	<key>QuicklookBuildConfiguration</key>
@@ -1848,6 +1848,7 @@
 				<string>public.c-source</string>
 				<string>public.csh-script</string>
 				<string>public.css</string>
+				<string>public.data</string>
 				<string>public.json</string>
 				<string>public.ksh-script</string>
 				<string>public.lua-source</string>

@@ -1,6 +1,6 @@
 # Security policy
 
-Quicklook is in early development. There is no stable support or backport schedule yet; security fixes target the current development version. Do not treat development or locally signed packages as notarized releases.
+OrbisPeek is in early development. There is no stable support or backport schedule yet; security fixes target the current development version. Do not treat development or locally signed packages as notarized releases.
 
 ## Reporting a vulnerability
 

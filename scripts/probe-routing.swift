@@ -90,7 +90,9 @@ let manifest: [ManifestType]
 do {
     manifest = try JSONDecoder().decode([ManifestType].self, from: Data(contentsOf: manifestURL))
 } catch { fail("Cannot read manifest: \(error.localizedDescription)") }
-let whitelist = Set(manifest.flatMap(\.utis))
+let validModes = Set(["markdown", "json", "jsonl", "html", "code"])
+guard manifest.allSatisfy({ validModes.contains($0.mode) }) else { fail("Manifest contains an unsupported rendering mode") }
+let whitelist = Set(manifest.flatMap(\.utis)).union(["public.data"])
 let suffixes = Set(manifest.flatMap(\.extensions))
 let fileManager = FileManager.default
 var urls: [URL] = []
@@ -107,6 +109,7 @@ if let fixtureURL {
                     case "markdown": text = "# Quicklook routing sample\n"
                     case "json": text = "{\"routingSample\":true}\n"
                     case "jsonl": text = "{\"record\":1}\n{\"record\":2}\n"
+                    case "html": text = "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Routing sample</title></head><body><h1>Quicklook HTML routing sample</h1></body></html>\n"
                     default: text = "# Quicklook routing sample\nvalue = 1\n"
                     }
                     try Data(text.utf8).write(to: file)
@@ -142,7 +145,7 @@ for path in paths {
 }
 guard !urls.isEmpty else { fail("Pass files/directories, or --create-fixtures DIRECTORY. Use --help for usage.") }
 
-let preserved = Set(["txt", "text", "html", "htm", "xhtml", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv", "svg"])
+let preserved = Set(["html", "htm", "xhtml", "txt", "text", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv", "svg"])
 let files: [FileResult] = Set(urls).sorted { $0.path < $1.path }.map { url in
     let type = classify(url.lastPathComponent, manifest: manifest)
     let suffix = url.pathExtension.lowercased()
@@ -156,7 +159,7 @@ let files: [FileResult] = Set(urls).sorted { $0.path < $1.path }.map { url in
     let status: String
     if failure != nil { status = "metadata-error" }
     else if match { status = "exact-type-covered" }
-    else if preserved.contains(suffix), type == nil { status = "system-preserved" }
+    else if preserved.contains(suffix), type == nil || type?.id == "html" { status = "system-preserved" }
     else if type != nil { status = "recognized-type-not-routed" }
     else { status = "outside-recognition-matrix" }
     return FileResult(path: url.path, fileName: url.lastPathComponent, recognizedGroup: type?.id, language: type?.language, mode: type?.mode, contentType: contentType?.identifier, contentTypeIsDynamic: contentType?.isDynamic, preferredExtensionType: preferred, extensionCandidates: candidates, exactWhitelistMatch: match, status: status, error: failure)

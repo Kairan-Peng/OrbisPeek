@@ -1,0 +1,6 @@
+<!doctype html><html><head><base href="https://example.invalid/"><meta http-equiv="refresh" content="0;url=https://example.invalid/refresh"><link rel="stylesheet" href="https://example.invalid/style"><style>@import url('https://example.invalid/import');@font-face{font-family:remote;src:url('https://example.invalid/font')}p{background-image:url('https://example.invalid/background')}</style></head><body>
+<h1>Blocked HTML resources</h1><p onclick="parent.quicklookFixtureScriptExecuted=true">Readable sibling</p>
+<img src="https://example.invalid/image.png" onerror="parent.quicklookFixtureScriptExecuted=true"><img src="../outside.png"><img src="/tmp/private.png"><img src="assets/unsafe.svg"><img src="quicklook-resource://local/forged.png">
+<picture><source srcset="https://example.invalid/source.png"><img src="https://example.invalid/picture.png"></picture>
+<iframe src="https://example.invalid/frame"></iframe><object data="https://example.invalid/plugin"></object><video src="https://example.invalid/video" poster="https://example.invalid/poster"></video><form action="https://example.invalid/form"><input value="hidden control"></form><svg><foreignObject><script>parent.quicklookFixtureScriptExecuted=true</script></foreignObject></svg><script type="module">parent.quicklookFixtureScriptExecuted=true</script>
+<p>After blocked resources</p></body></html>

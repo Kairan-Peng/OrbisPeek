@@ -61,7 +61,7 @@ def main():
                 command.append("--timestamp")
             command.append("-quiet")
             subprocess.run(command, check=True)
-            built_app = args.derived_data.resolve() / "Build/Products/Release/Quicklook.app"
+            built_app = args.derived_data.resolve() / "Build/Products/Release/OrbisPeek.app"
         app_result = verify_app(built_app, expected_architectures)
         require(args.basic or app_result["directoryAccess"], "Directory access is missing; use --basic only for the intentionally reduced capability package.")
         if args.notarize_profile:
@@ -70,17 +70,17 @@ def main():
         version = app_result["version"]
         require(re.fullmatch(r"[A-Za-z0-9._+-]+", version), "The version cannot be used as a release filename.")
         architecture_name = "universal" if len(expected_architectures) == 2 else expected_architectures[0]
-        stem = f"Quicklook-{version}-macos-{architecture_name}"
+        stem = f"OrbisPeek-{version}-macos-{architecture_name}"
         (ROOT / ".build").mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="package-release-", dir=ROOT / ".build") as temporary:
             staging = Path(temporary)
             contents = staging / "disk-contents"
             contents.mkdir()
-            app = contents / "Quicklook.app"
+            app = contents / "OrbisPeek.app"
             run(["ditto", "--norsrc", "--noextattr", built_app, app])
             (contents / "Applications").symlink_to("/Applications")
             (contents / "安装说明.txt").write_text(
-                "将 Quicklook.app 拖入 Applications，然后打开应用并启用快速查看扩展。\n"
+                "将 OrbisPeek.app 拖入 Applications，然后打开应用并启用快速查看扩展。\n"
                 "如果安装过同类预览插件，请在应用中查看冲突诊断。\n"
                 + ("此包已完成 Apple 公证。\n" if args.notarize_profile else "此包为本地签名测试版本，尚未提交 Apple 公证；不应作为已公证版本对外发布。\n"),
                 encoding="utf-8"
@@ -94,7 +94,7 @@ def main():
                 run(["xcrun", "stapler", "staple", app])
                 run(["xcrun", "stapler", "validate", app])
             make_zip(app, archive)
-            run(["hdiutil", "create", "-volname", "Quicklook", "-srcfolder", contents, "-format", "UDZO", "-ov", disk_image])
+            run(["hdiutil", "create", "-volname", "OrbisPeek", "-srcfolder", contents, "-format", "UDZO", "-ov", disk_image])
             timestamp = "--timestamp" if args.timestamp or args.notarize_profile else "--timestamp=none"
             run(["codesign", "--force", "--sign", identity, timestamp, disk_image])
             if args.notarize_profile:

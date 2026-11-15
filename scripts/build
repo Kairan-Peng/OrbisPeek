@@ -84,7 +84,7 @@ xcodebuild -project Quicklook.xcodeproj -scheme Quicklook -configuration "$confi
   "${signing_options[@]}" "${extra_options[@]}"
 
 if $remove_build_registration; then
-  built_app="${derived_data:A}/Build/Products/$configuration/Quicklook.app"
+  built_app="${derived_data:A}/Build/Products/$configuration/OrbisPeek.app"
   built_extension="$built_app/Contents/PlugIns/QuicklookPreview.appex"
   # Target exact build paths; do not alter an installed app or another provider.
   /usr/bin/pluginkit -r "$built_extension"

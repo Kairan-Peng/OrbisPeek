@@ -36,12 +36,11 @@ class CoverageFixturesTests(unittest.TestCase):
     def testEveryDeclaredSuffixHasOneCaseAndNoRiskSuffixIsFiltered(self):
         groups = json.loads(GENERATOR.SOURCE.read_bytes())
         declared = [extension for group in groups for extension in group["extensions"]]
-        self.assertEqual(len(declared), 227)
-        self.assertEqual(self.report["caseCount"], 227)
+        self.assertEqual(self.report["caseCount"], len(declared))
         self.assertEqual([case["extension"] for case in self.report["cases"]], declared)
-        self.assertEqual(self.report["groupCount"], 86)
-        self.assertEqual(self.report["coveredGroupCount"], 85)
-        self.assertEqual(self.report["filenameOnlyGroups"], ["nginx"])
+        self.assertEqual(self.report["groupCount"], len(groups))
+        self.assertEqual(self.report["coveredGroupCount"], sum(bool(group["extensions"]) for group in groups))
+        self.assertEqual(self.report["filenameOnlyGroups"], [group["id"] for group in groups if not group["extensions"]])
         self.assertEqual(set(GENERATOR.TEMPLATES), {group["id"] for group in groups})
         self.assertTrue({"ts", "mts", "r", "edn", "exs", "d", "fs"} <= set(self.cases))
         self.assertEqual((self.output / "extensions.txt").read_text().splitlines(), declared)
@@ -67,7 +66,7 @@ class CoverageFixturesTests(unittest.TestCase):
                 markers.add(case["marker"])
                 names.add(case["fileName"])
         compact = json.loads((self.output / "cua-cases.json").read_bytes())
-        self.assertEqual(len(compact), 227)
+        self.assertEqual(len(compact), self.report["caseCount"])
         self.assertTrue(all(set(case) == {"fileName", "marker", "extension"} for case in compact))
 
     def testDataFormatsRemainParseableWithTheirMarkers(self):
@@ -91,6 +90,39 @@ class CoverageFixturesTests(unittest.TestCase):
                 text = "[DEFAULT]\n" + text
             parser.read_string(text)
             self.assertGreater(len(parser.sections()), 0)
+
+    def testHTMLMarkersAreVisibleBodyTextAndXHTMLIsWellFormed(self):
+        from html.parser import HTMLParser
+
+        class BodyText(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.in_body = False
+                self.text = []
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "body":
+                    self.in_body = True
+
+            def handle_endtag(self, tag):
+                if tag == "body":
+                    self.in_body = False
+
+            def handle_data(self, data):
+                if self.in_body:
+                    self.text.append(data)
+
+        for extension in ("html", "htm", "xhtml"):
+            with self.subTest(extension=extension):
+                case = self.cases[extension]
+                text = self.text(extension)
+                parser = BodyText()
+                parser.feed("\n".join(text.splitlines()[:3]))
+                self.assertIn(case["marker"], "".join(parser.text))
+                self.assertEqual(case["expectedMode"], "html")
+                self.assertIn("<table", text)
+        root = ET.fromstring(self.text("xhtml"))
+        self.assertEqual(root.tag, "{http://www.w3.org/1999/xhtml}html")
 
     def testXMLAndPlistFamiliesUseStructuredDocuments(self):
         for case in self.report["cases"]:
@@ -134,9 +166,9 @@ class CoverageFixturesTests(unittest.TestCase):
                 for anchor in values:
                     self.assertIn(anchor, self.text(extension))
         # All groups have syntax-specific base templates, rather than a generic
-        # greeting copied under 227 suffixes. Aliases may share their group text.
+        # greeting copied under every suffix. Aliases may share their group text.
         normalized = {template.replace(GENERATOR.PLACEHOLDER, "") for template in GENERATOR.TEMPLATES.values()}
-        self.assertEqual(len(normalized), 86)
+        self.assertEqual(len(normalized), self.report["groupCount"])
 
 
 if __name__ == "__main__":

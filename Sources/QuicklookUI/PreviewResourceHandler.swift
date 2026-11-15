@@ -6,19 +6,53 @@ import WebKit
 
 /// No file:// or network URL reaches the web view. Only bundled assets and bounded raster images.
 final class PreviewResourceHandler: NSObject, WKURLSchemeHandler {
-    private let lock = NSLock()
-    private var documentURL: URL?
-    private var events: [[String: String]] = []
-    private var imageBytes = 0
-    private var imageCount = 0
+    private nonisolated let lock = NSLock()
+    // These are accessed only while holding lock, including controller teardown.
+    private nonisolated(unsafe) var document = HTMLPreviewDocument()
+    private nonisolated(unsafe) var events: [[String: String]] = []
+    private nonisolated(unsafe) var imageBytes = 0
+    private nonisolated(unsafe) var imageCount = 0
 
-    func setDocument(_ url: URL) {
+    func beginRequest(_ request: UUID, documentURL: URL) {
         lock.lock()
         defer { lock.unlock() }
-        documentURL = url
+        document.beginRequest(request, documentURL: documentURL)
         events = []
         imageBytes = 0
         imageCount = 0
+    }
+
+    nonisolated func invalidate() {
+        lock.lock()
+        defer { lock.unlock() }
+        document.invalidate()
+        events = []
+        imageBytes = 0
+        imageCount = 0
+    }
+
+    func resourceToken() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        return document.resourceToken?.uuidString
+    }
+
+    func prepareHTML(_ html: String, requestID: UUID) throws -> URL {
+        lock.lock()
+        defer { lock.unlock() }
+        return try document.prepare(html, requestID: requestID).url
+    }
+
+    func discardPreparedHTML(requestID: UUID) {
+        lock.lock()
+        defer { lock.unlock() }
+        document.discardPrepared(requestID: requestID)
+    }
+
+    func isCurrentDocument(_ url: URL) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return document.document(at: url) != nil
     }
 
     func diagnostics() -> [[String: String]] {
@@ -29,27 +63,43 @@ final class PreviewResourceHandler: NSObject, WKURLSchemeHandler {
 
     func webView(_ webView: WKWebView, start task: WKURLSchemeTask) {
         guard let url = task.request.url else { return }
+        var imageToken: UUID?
+        var diagnosticPath = url.path
         do {
             let data: Data
             let mime: String
-            if url.scheme == "quicklook-app", url.host == "bundle" {
-                let name = url.lastPathComponent
-                guard ["index.html", "renderer.js", "styles.css"].contains(name),
-                      let resource = Bundle.module.url(forResource: name, withExtension: nil) else {
+            if let name = HTMLPreviewDocument.bundleResource(at: url) {
+                guard let resource = Bundle.module.url(forResource: name, withExtension: nil) else {
                     throw CocoaError(.fileNoSuchFile)
                 }
                 data = try Data(contentsOf: resource)
                 mime = ["html": "text/html", "js": "application/javascript", "css": "text/css"][resource.pathExtension] ?? "application/octet-stream"
-            } else if url.scheme == "quicklook-resource", url.host == "local" {
+            } else if url.scheme == "quicklook-app" {
                 lock.lock()
-                let document = documentURL
+                defer { lock.unlock() }
+                guard let prepared = document.document(at: url) else { throw CocoaError(.fileReadNoPermission) }
+                let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [
+                    "Content-Type": "text/html; charset=utf-8",
+                    "Content-Security-Policy": HTMLPreviewDocument.contentSecurityPolicy,
+                    "Cache-Control": "no-store",
+                ])!
+                task.didReceive(response)
+                task.didReceive(prepared.data)
+                task.didFinish()
+                return
+            } else if url.scheme == "quicklook-resource" {
+                lock.lock()
+                let imageResource = document.imageResource(at: url)
                 let withinBudget = imageCount < 32 && imageBytes < 32 * 1024 * 1024
-                imageCount += 1
+                if imageResource != nil && withinBudget { imageCount += 1 }
                 lock.unlock()
-                guard let document, withinBudget else { throw LocalResourceError.tooLarge }
+                guard let imageResource else { throw CocoaError(.fileReadNoPermission) }
+                imageToken = imageResource.token
+                diagnosticPath = imageResource.relativePath
+                guard withinBudget else { throw LocalResourceError.tooLarge }
                 // URL.path decodes each percent-encoded path once. Policy also rejects traversal and symlink escapes.
-                let relativePath = String(url.path.dropFirst())
-                let resource = try LocalResourcePolicy.resolve(relativePath: relativePath, documentURL: document)
+                let relativePath = imageResource.relativePath
+                let resource = try LocalResourcePolicy.resolve(relativePath: relativePath, documentURL: imageResource.documentURL)
                 let handle = try FileHandle(forReadingFrom: resource)
                 defer { try? handle.close() }
                 let input = try handle.read(upToCount: LocalResourcePolicy.maximumImageBytes + 1) ?? Data()
@@ -78,26 +128,40 @@ final class PreviewResourceHandler: NSObject, WKURLSchemeHandler {
                 data = output as Data
                 mime = "image/png"
                 lock.lock()
+                defer { lock.unlock() }
+                // ImageIO and file reads run without the lock. A replacement may have
+                // revoked this capability while they ran; never account or send stale bytes.
+                guard document.isCurrent(imageResource.token) else { throw CocoaError(.fileReadNoPermission) }
                 guard data.count <= LocalResourcePolicy.maximumImageBytes,
                       imageBytes <= 32 * 1024 * 1024 - data.count else {
-                    lock.unlock()
                     throw LocalResourceError.tooLarge
                 }
                 imageBytes += data.count
-                events.append(["path": relativePath, "status": "loaded", "bytes": String(data.count)])
-                lock.unlock()
+                record(["path": relativePath, "status": "loaded", "bytes": String(data.count)])
+                respond(task, url: url, data: data, mime: mime)
+                return
             } else {
                 throw CocoaError(.fileReadNoPermission)
             }
-            task.didReceive(URLResponse(url: url, mimeType: mime, expectedContentLength: data.count, textEncodingName: mime.hasPrefix("text/") ? "utf-8" : nil))
-            task.didReceive(data)
-            task.didFinish()
+            respond(task, url: url, data: data, mime: mime)
         } catch {
             lock.lock()
-            events.append(["path": url.path, "status": "blocked", "reason": error.localizedDescription])
+            if imageToken == nil || document.isCurrent(imageToken!) {
+                record(["path": diagnosticPath, "status": "blocked", "reason": error.localizedDescription])
+            }
             lock.unlock()
             task.didFailWithError(error)
         }
+    }
+
+    private func record(_ event: [String: String]) {
+        if events.count < 256 { events.append(event) }
+    }
+
+    private func respond(_ task: WKURLSchemeTask, url: URL, data: Data, mime: String) {
+        task.didReceive(URLResponse(url: url, mimeType: mime, expectedContentLength: data.count, textEncodingName: mime.hasPrefix("text/") ? "utf-8" : nil))
+        task.didReceive(data)
+        task.didFinish()
     }
 
     func webView(_ webView: WKWebView, stop task: WKURLSchemeTask) {

@@ -388,12 +388,49 @@
     },
     {
       "path": "samples/fixtures/text/system-preview.html",
-      "expectation": "system",
-      "mode": "code",
+      "expectation": "preview",
+      "mode": "html",
       "sourceEncoding": "utf-8",
       "bytes": 154,
       "sha256": "2c0e1fb44f54593e202e8ec89ed4c1ac54765d5422adb2e73066487389e7bcb7",
-      "characters": 126
+      "characters": 126,
+      "note": "Legacy input retains its original pre-HTML-support wording; the current registry now uses static HTML preview."
+    },
+    {
+      "path": "samples/fixtures/html/preview.html",
+      "expectation": "preview",
+      "mode": "html",
+      "sourceEncoding": "utf-8",
+      "bytes": 1378,
+      "sha256": "88bf991492b0a904df5694b31fec06aaf2234e63cddb8c5020701d8d0ad5198c",
+      "characters": 1373
+    },
+    {
+      "path": "samples/fixtures/html/preview.htm",
+      "expectation": "preview",
+      "mode": "html",
+      "sourceEncoding": "utf-8",
+      "bytes": 1378,
+      "sha256": "88bf991492b0a904df5694b31fec06aaf2234e63cddb8c5020701d8d0ad5198c",
+      "characters": 1373
+    },
+    {
+      "path": "samples/fixtures/html/preview.xhtml",
+      "expectation": "preview",
+      "mode": "html",
+      "sourceEncoding": "utf-8",
+      "bytes": 317,
+      "sha256": "ea68a03a03e5d54f2c15ad78e2d1fe2b7d9f304cc78d21f711c708ecbc67e0ad",
+      "characters": 313
+    },
+    {
+      "path": "samples/fixtures/html/blocked-resources.html",
+      "expectation": "preview",
+      "mode": "html",
+      "sourceEncoding": "utf-8",
+      "bytes": 1364,
+      "sha256": "e532a87cd72ad954d041a6956f7abcd38918a63b2de69ecda820ec50e4481286",
+      "characters": 1364
     },
     {
       "path": "samples/fixtures/encoding/utf8.log",

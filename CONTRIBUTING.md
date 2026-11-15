@@ -13,7 +13,7 @@ python3 -m unittest discover -s Tests/Acceptance -p 'test_*.py' -v
 ./scripts/build --no-register
 ```
 
-The default app build uses ad-hoc signing and does not need an Apple developer account. Shared directory authorization and the signed sample receipt flow need your own configured Developer ID and App Group. Do not include signing credentials in a contribution. Xcode briefly registers built applications; `--no-register` removes only that output's registration after a successful build.
+The default app build uses ad-hoc signing and does not need an Apple developer account. Shared directory authorization and the optional extensionless-text preview switch need your own configured Developer ID and App Group. The switch is off by default and unavailable without that shared configuration. Do not include signing credentials in a contribution. Xcode briefly registers built applications; `--no-register` removes only that output's registration after a successful build.
 
 ## Making a change
 

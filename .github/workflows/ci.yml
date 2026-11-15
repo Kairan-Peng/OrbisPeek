@@ -59,7 +59,7 @@ jobs:
           ./scripts/build --configuration Release --architectures universal \
             --derived-data .build/ci-derived --no-register
           python3 scripts/validate-installed.py \
-            .build/ci-derived/Build/Products/Release/Quicklook.app \
+            .build/ci-derived/Build/Products/Release/OrbisPeek.app \
             --mode development --expect-arch arm64 --expect-arch x86_64 \
             --output .build/ci-app-validation.json
           python3 scripts/generate-types.py --check

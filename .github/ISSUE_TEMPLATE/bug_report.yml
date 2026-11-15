@@ -9,7 +9,7 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: macOS version, Apple Silicon or Intel, Quicklook version/build, and installation location.
+      description: macOS version, Apple Silicon or Intel, OrbisPeek version/build, and installation location.
     validations:
       required: true
   - type: textarea
@@ -23,7 +23,7 @@ body:
     id: behavior
     attributes:
       label: Expected and actual behavior
-      description: Distinguish Finder Space preview, the built-in sample check, and opening a document in the host app. Mention other Quick Look providers if relevant.
+      description: Distinguish actual Finder Space preview from a developer rendering probe. Mention other Quick Look providers if relevant; the host app only manages setup and permissions.
     validations:
       required: true
   - type: textarea

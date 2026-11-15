@@ -19,6 +19,12 @@ PLACEHOLDER = "@MARKER@"
 # Each group has its own syntax, including filename-only nginx. Aliases reuse
 # these templates; materially different dialects are specialized below.
 TEMPLATES = {
+    "html": '''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Static HTML coverage</title></head>
+<body><h1>@MARKER@</h1><p>Readable static HTML preview with a body marker.</p>
+<table><tr><th>Name</th><th>Enabled</th></tr><tr><td>First</td><td>true</td></tr></table>
+<pre><code>preview = "static"</code></pre></body></html>
+''',
     "markdown": '''# @MARKER@
 
 A **Markdown** preview with `inline code`.
@@ -832,6 +838,12 @@ server {
 # A suffix is sometimes a distinct grammar within a highlighter group. These
 # are syntax examples, not just the group's default text renamed repeatedly.
 VARIANTS = {
+    ("html", "xhtml"): '''<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><title>Static XHTML coverage</title></head>
+<body><h1>@MARKER@</h1><p>Readable well-formed XHTML body marker.</p>
+<table><tr><th>Name</th><th>Enabled</th></tr><tr><td>First</td><td>true</td></tr></table>
+<pre><code>preview = "static"</code></pre></body></html>
+''',
     ("ini", "desktop"): '''# @MARKER@
 [Desktop Entry]
 Type=Application

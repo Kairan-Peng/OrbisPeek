@@ -70,7 +70,7 @@ Finder logs for that attempt show Apple's `QLPreviewGenerationExtension` followe
 by a UI-service connection error and timeout, rather than this extension's
 renderer being invoked. The same Markdown content copied to the workspace's
 ordinary `.build/beta-validation/finder-sample.md` renders through the installed
-Quicklook extension with its Markdown toolbar.
+then-named Quicklook extension with its Markdown toolbar.
 
 The exact system reason for the cache-container path difference is unconfirmed.
 Finder acceptance therefore uses a document in an ordinary user-accessible
@@ -141,7 +141,7 @@ files from the user's home directory.
   declarations and finding an exact intersection with the current manifest.
 - An unreadable provider's plist increments an incomplete-scan count; it is not
   silently treated as non-conflicting.
-- Another copy of Quicklook is reported separately from a competing app. The
+- Another copy of OrbisPeek is reported separately from a competing app. The
   current host path must match the registered extension path before its election
   is used as the current copy's status.
 - No file is executed or loaded as a code bundle during these checks. Plists are

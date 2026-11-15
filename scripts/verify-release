@@ -100,6 +100,12 @@ def compare_app(app, manifest):
     return result
 
 
+def packaged_app(directory):
+    apps = [path for path in directory.glob("*.app") if path.is_dir() and not path.is_symlink()]
+    require(len(apps) == 1, "The release must contain exactly one top-level application bundle.")
+    return apps[0]
+
+
 def verify_manifest(path):
     manifest = json.loads(path.read_text())
     require(manifest.get("schemaVersion") == 1, "Unsupported manifest schema.")
@@ -117,7 +123,7 @@ def verify_manifest(path):
             destination = Path(temporary)
             if item["kind"] == "zip":
                 run(["ditto", "-xk", artifact, destination])
-                extracted_app = destination / "Quicklook.app"
+                extracted_app = packaged_app(destination)
                 compare_app(extracted_app, manifest)
                 if manifest["notarization"]["status"] == "accepted":
                     run(["xcrun", "stapler", "validate", extracted_app])
@@ -131,7 +137,7 @@ def verify_manifest(path):
                 try:
                     run(["hdiutil", "attach", "-readonly", "-nobrowse", "-noautoopen", "-mountpoint", mount, artifact])
                     attached = True
-                    compare_app(mount / "Quicklook.app", manifest)
+                    compare_app(packaged_app(mount), manifest)
                     require((mount / "Applications").is_symlink() and os.readlink(mount / "Applications") == "/Applications", "The DMG installation shortcut is missing.")
                     if manifest["notarization"]["status"] == "accepted":
                         run(["xcrun", "stapler", "validate", artifact])
@@ -144,7 +150,7 @@ def verify_manifest(path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", type=Path, help="Quicklook.app or release manifest JSON")
+    parser.add_argument("path", type=Path, help="OrbisPeek.app or release manifest JSON")
     parser.add_argument("--architectures", help="Expected comma-separated Mach-O architectures")
     parser.add_argument("--json", action="store_true", help="Output the complete machine-readable result")
     args = parser.parse_args()

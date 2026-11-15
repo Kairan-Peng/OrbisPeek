@@ -28,7 +28,8 @@ STATUSES = (
 )
 AX_TYPES = {"cua-ax", "cua-ax+screenshot"}
 OWN_URL = "quicklook-app://bundle/index.html"
-BOUNDARY_CASE_COUNT = 227
+DEFAULT_EXPECTED_COUNT = 227  # Historical corpus; new batches pass their frozen count explicitly.
+HTML_DOCUMENT_URL = re.compile(r"URL:\s*quicklook-app://bundle/document/[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}/content\.html(?:\s|$|,)")
 SHA256_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
 TEXT_ROLE = re.compile(
     r"\b(?:text|heading|AXStaticText|AXTextArea|AXHeading)\b|文本|标题|文字",
@@ -74,7 +75,9 @@ def canonical(path: str | Path) -> Path:
     return Path(path).expanduser().resolve()
 
 
-def load_manifest(path: Path, expected_count: int = 227) -> dict:
+def load_manifest(path: Path, expected_count: int = DEFAULT_EXPECTED_COUNT) -> dict:
+    if type(expected_count) is not int or expected_count <= 0:
+        raise ValueError("Expected count must be a positive integer")
     contents = path.read_bytes()
     manifest = json.loads(contents)
     if not isinstance(manifest, dict) or not isinstance(manifest.get("cases"), list):
@@ -103,6 +106,7 @@ def load_manifest(path: Path, expected_count: int = 227) -> dict:
                 raise ValueError(f"Duplicate fixture {key}: {value}")
             seen.add(value)
     manifest["_loadedSHA256"] = hashlib.sha256(contents).hexdigest()
+    manifest["_expectedCount"] = expected_count
     return manifest
 
 
@@ -248,11 +252,11 @@ def title_candidates(ax: str) -> list[str]:
             candidates.append(window[1])
         web = re.search(r"(?:HTML\s*content|HTML内容|AXWebArea).*?Description:\s*(.*?),\s*URL:", line, re.IGNORECASE)
         if web:
-            candidates.append(web[1].removesuffix(" · Quicklook"))
+            candidates.append(re.sub(r" · (?:OrbisPeek|Quicklook)$", "", web[1]))
         node = re.match(r"^[\s+~]*\d+\s+(?:heading|标题|text|文本)\s+(.+)$", line, re.IGNORECASE)
         if node:
             text = re.sub(r",\s*(?:Value|ID|Secondary Actions|Help):.*$", "", node[1])
-            candidates.append(text.removeprefix("Value: ").removesuffix(" · Quicklook"))
+            candidates.append(re.sub(r" · (?:OrbisPeek|Quicklook)$", "", text.removeprefix("Value: ")))
     return sorted(set(candidates))
 
 
@@ -298,19 +302,55 @@ def has_marker(ax: str, marker: str) -> bool:
 def own_web_scopes(ax: str) -> list[str]:
     return [node["subtree"] for node in ax_nodes(ax)
             if WEB_ROLE.match(node["label"]) and re.search(
-                r"URL:\s*quicklook-app://bundle/index\.html(?:[?#]\S*)?(?:\s|$|,)", node["label"])]
+                r"URL:\s*quicklook-app://bundle/index\.html(?:\s|$|,)", node["label"])]
 
 
-def own_provider_evidence(ax: str) -> dict:
+def web_surface_nodes(scope: str) -> list[dict]:
+    """Keep one web document's nodes; nested documents cannot supply its UI/content."""
+    nodes = ax_nodes(scope)
+    visible = []
+    nested_indent = None
+    for index, node in enumerate(nodes):
+        if nested_indent is not None:
+            if node["indent"] > nested_indent:
+                continue
+            nested_indent = None
+        if index > 0 and WEB_ROLE.match(node["label"]):
+            nested_indent = node["indent"]
+            continue
+        visible.append(node)
+    return visible
+
+
+def web_surface_has_marker(scope: str, marker: str) -> bool:
+    return any(has_marker(node["value"], marker) for node in web_surface_nodes(scope))
+
+
+def own_provider_evidence(ax: str, expected_mode: str | None = None) -> dict:
     webs = own_web_scopes(ax)
     content = webs[0] if len(webs) == 1 else ""
+    buttons = [node["label"] for node in web_surface_nodes(content)
+               if re.match(r"(?:toggle )?button\b|(?:切换)?按钮", node["label"], re.IGNORECASE)]
     toolbar = {
-        name: any(re.search(r"button|按钮", node["label"], re.IGNORECASE) and name in node["label"]
-                  for node in ax_nodes(content))
+        name: any(name in label for label in buttons)
         for name in ["换行", "复制", "查找"]
     }
+    return_label = {"markdown": "查看预览", "html": "查看预览",
+                    "json": "查看格式化内容", "jsonl": "查看记录视图"}.get(expected_mode)
+    mode_labels = ["查看原文", return_label] if return_label else ["查看原文", "查看预览", "查看格式化内容", "查看记录视图"]
+    current = {
+        "wrap": any(re.search(r"(?:切换长行自动换行|自动换行适用于原文视图)(?:,|$)", label) for label in buttons),
+        "find": any(re.search(r"查找（⌘F）(?:,|$)", label) for label in buttons),
+        "mode": any(re.search(re.escape(mode) + r"(?:,|$)", label) for mode in mode_labels for label in buttons),
+    }
+    current_confirmed = current["wrap"] and current["find"] and (expected_mode == "code" or current["mode"])
+    no_find_confirmed = (current["wrap"] and not current["find"]
+                         and len(buttons) == (1 if expected_mode == "code" else 2)
+                         and (expected_mode == "code" or current["mode"]))
     return {"urlMatched": bool(webs), "toolbar": toolbar,
-            "confirmed": len(webs) == 1 and all(toolbar.values())}
+            "iconToolbar": current,
+            "toolbarProfile": "legacy" if all(toolbar.values()) else "icons" if current_confirmed else "icons-no-find" if no_find_confirmed else None,
+            "confirmed": len(webs) == 1 and (all(toolbar.values()) or current_confirmed or no_find_confirmed)}
 
 
 def observed_at_valid(value) -> bool:
@@ -377,7 +417,7 @@ def analyze_case(case: dict, observations: list[dict]) -> dict:
         title_matches = False
     window_matches = len(windows) == 1
     marker_visible = has_marker(window_ax, case["marker"])
-    own = own_provider_evidence(window_ax)
+    own = own_provider_evidence(window_ax, case.get("expectedMode"))
     nodes = ax_nodes(window_ax)
     metadata_only = (
         metadata_title_matches(window_ax, case["fileName"])
@@ -401,21 +441,31 @@ def analyze_case(case: dict, observations: list[dict]) -> dict:
     result["provider"] = {"declaredKind": kind, "classification": "unconfirmed"}
     declared_url = provider.get("url")
     if own["confirmed"] and kind == "system":
-        result["inputErrors"].append("The record claims a system provider but AX identifies Quicklook")
+        result["inputErrors"].append("The record claims a system provider but AX identifies OrbisPeek")
         result["reasons"].append("Provider claim contradicts the raw AX evidence")
         return result
-    if own["confirmed"] and declared_url and not re.fullmatch(re.escape(OWN_URL) + r"(?:[?#]\S*)?", str(declared_url)):
-        result["inputErrors"].append("Declared provider URL contradicts Quicklook's AX URL")
+    if own["confirmed"] and declared_url and declared_url != OWN_URL:
+        result["inputErrors"].append("Declared provider URL contradicts OrbisPeek's AX URL")
         return result
     webs = own_web_scopes(window_ax)
-    own_content_visible = len(webs) == 1 and has_marker(webs[0], case["marker"])
-    own_title_matches = len(webs) == 1 and file_title_matches(webs[0], case["fileName"])
+    own_content_visible = len(webs) == 1 and web_surface_has_marker(webs[0], case["marker"])
+    shell_nodes = ax_nodes(webs[0]) if len(webs) == 1 else []
+    own_title_matches = bool(shell_nodes) and case["fileName"] in title_candidates(shell_nodes[0]["value"])
+    if case.get("expectedMode") == "html":
+        child_documents = [node["subtree"] for node in shell_nodes
+                           if WEB_ROLE.match(node["label"]) and HTML_DOCUMENT_URL.search(node["label"])]
+        rendered_mode = any(re.match(r"toggle button\b|切换按钮", node["label"], re.IGNORECASE)
+                            and re.search(r"查看原文,\s*Value:\s*off(?:,|$)", node["label"])
+                            for node in (web_surface_nodes(webs[0]) if len(webs) == 1 else []))
+        own_content_visible = len(child_documents) == 1 and web_surface_has_marker(child_documents[0], case["marker"]) and rendered_mode
+        result["evidenceChecks"]["controlledHTMLChildDocument"] = len(child_documents) == 1
+        result["evidenceChecks"]["HTMLRenderedMode"] = rendered_mode
     result["evidenceChecks"]["ownContentMarkerVisibleInAX"] = own_content_visible
     result["evidenceChecks"]["ownPreviewTitleFileNameMatches"] = own_title_matches
     if own_content_visible and own_title_matches and own["confirmed"]:
         result["status"] = "own-provider-content-pass"
         result["provider"].update({"classification": "quicklook", "observedAXURL": OWN_URL})
-        result["reasons"].append("Correct file title, Quicklook AX URL, toolbar and actual content marker confirmed")
+        result["reasons"].append("Correct file title, app AX URL, toolbar and actual content marker confirmed")
         return result
     native = any(NATIVE_TEXT_ROLE.match(node["label"]) for node in ax_nodes(window_ax))
     native_marker = any(NATIVE_TEXT_ROLE.match(node["label"]) and case["marker"] in node["value"]
@@ -424,7 +474,8 @@ def analyze_case(case: dict, observations: list[dict]) -> dict:
     no_web = not any(WEB_ROLE.match(node["label"]) for node in ax_nodes(window_ax))
     result["evidenceChecks"]["nativeTextArea"] = native
     result["evidenceChecks"]["systemEvidence"] = system_evidence
-    if native_marker and no_web and kind == "system" and system_evidence == "native-text-area":
+    if (case.get("expectedMode") != "html" and native_marker and no_web
+            and kind == "system" and system_evidence == "native-text-area"):
         result["status"] = "system-provider-content-pass"
         result["provider"].update({"classification": "native-system-text", "systemEvidence": system_evidence})
         result["reasons"].append("Correct title and marker in a native text area; no web provider is present")
@@ -542,10 +593,17 @@ def public_report(report: dict) -> dict:
 def build_report(manifest: dict, records: list[dict], *, manifest_path: Path,
                  observation_sources: list[dict] | None = None,
                  input_errors: list[dict] | None = None, app: Path | None = None,
-                 policy: dict | None = None) -> dict:
+                 policy: dict | None = None,
+                 expected_count: int = DEFAULT_EXPECTED_COUNT) -> dict:
     if policy is not None:
         validate_policy(policy, manifest)
     errors = list(input_errors or [])
+    if (type(expected_count) is not int or expected_count <= 0
+            or len(manifest["cases"]) != expected_count
+            or manifest.get("caseCount", len(manifest["cases"])) != expected_count
+            or manifest.get("_expectedCount", expected_count) != expected_count):
+        errors.append({"type": "expected-case-count-mismatch", "expectedCount": expected_count,
+                       "manifestCaseCount": manifest.get("caseCount"), "actualCount": len(manifest["cases"])})
     lookup = {case["id"]: case for case in manifest["cases"]}
     indexed = defaultdict(list)
     for record in records:
@@ -603,7 +661,7 @@ def build_report(manifest: dict, records: list[dict], *, manifest_path: Path,
         for case in cases
     )
     accepted = sum(case["acceptedLimitation"] for case in cases)
-    approved_gate = (policy is not None and not errors and len(cases) == BOUNDARY_CASE_COUNT
+    approved_gate = (policy is not None and not errors and len(cases) == expected_count
                      and observed_cases == len(cases) and same_recorded_build
                      and passes + accepted == len(cases))
     policy_snapshot = None
@@ -625,7 +683,8 @@ def build_report(manifest: dict, records: list[dict], *, manifest_path: Path,
         "observedBuilds": [{"version": version, "build": build, "recordCount": count}
                            for (version, build), count in sorted(record_builds.items())],
         "observationFiles": observation_sources or [], "validationErrors": errors,
-        "summary": {"caseCount": len(cases), "recordedCaseCount": sum(bool(indexed[case["id"]]) for case in cases),
+        "summary": {"caseCount": len(cases), "expectedCaseCount": expected_count,
+                    "recordedCaseCount": sum(bool(indexed[case["id"]]) for case in cases),
                     **counts, "contentPassCount": passes,
                     "acceptedLimitationCount": accepted,
                     "otherFailureCount": counts["fail"] - accepted,
@@ -706,7 +765,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, default=ROOT / ".build/finder-coverage/manifest.json")
     parser.add_argument("--observations", type=Path, nargs="+", required=True, help="JSONL records, JSON arrays, or batches with an observations array")
-    parser.add_argument("--expected-count", type=int, default=227)
+    parser.add_argument("--expected-count", type=int, default=DEFAULT_EXPECTED_COUNT,
+                        help="Frozen batch size used by manifest validation and all report gates (default: historical 227)")
     parser.add_argument("--app", type=Path, help="Read current installed bundle metadata; not a substitute for per-observation build metadata")
     parser.add_argument("--policy", type=Path, help="Explicit versioned approval of observed metadata-only compatibility limits; never changes content-pass status")
     parser.add_argument("--json-output", type=Path, default=ROOT / ".build/finder-coverage/results.json")
@@ -722,7 +782,8 @@ def main() -> int:
         parser.exit(2, f"Invalid boundary policy: {error}\n")
     records, sources, errors = load_observations(args.observations)
     report = build_report(manifest, records, manifest_path=args.manifest,
-                          observation_sources=sources, input_errors=errors, app=args.app, policy=policy)
+                          observation_sources=sources, input_errors=errors, app=args.app, policy=policy,
+                          expected_count=args.expected_count)
     for path, text in [
         (args.json_output, json.dumps(report, ensure_ascii=False, indent=2) + "\n"),
         (args.markdown_output, markdown_report(report)),

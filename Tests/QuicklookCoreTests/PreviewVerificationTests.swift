@@ -2,7 +2,7 @@ import XCTest
 @testable import QuicklookCore
 
 final class PreviewVerificationTests: XCTestCase {
-    private let installedExtension = URL(fileURLWithPath: "/Applications/Quicklook.app/Contents/PlugIns/QuicklookPreview.appex")
+    private let installedExtension = URL(fileURLWithPath: "/Applications/OrbisPeek.app/Contents/PlugIns/QuicklookPreview.appex")
     private let version = "0.1.1"
     private let build = "9"
     private let now = Date(timeIntervalSince1970: 1_800_000_000)
@@ -14,7 +14,7 @@ final class PreviewVerificationTests: XCTestCase {
         suite = "org.quicklook.preview.tests.\(UUID().uuidString)"
         store = try XCTUnwrap(UserDefaults(suiteName: suite))
         file = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString).appendingPathComponent("quicklook-sample.json")
+            .appendingPathComponent(UUID().uuidString).appendingPathComponent("orbispeek-sample.json")
     }
 
     override func tearDown() {
@@ -65,7 +65,7 @@ final class PreviewVerificationTests: XCTestCase {
         let currentToken = try XCTUnwrap(token(for: next))
         XCTAssertNotNil(receipt(currentToken, request: next))
 
-        let differentFile = file.deletingLastPathComponent().appendingPathComponent("other/quicklook-sample.json")
+        let differentFile = file.deletingLastPathComponent().appendingPathComponent("other/orbispeek-sample.json")
         let third = try PreviewVerification.begin(fileURL: differentFile, in: store, now: now)
         XCTAssertNil(receipt(currentToken, request: third))
         XCTAssertNil(PreviewVerification.pendingRequest(for: file, in: store, now: now))
@@ -93,12 +93,12 @@ final class PreviewVerificationTests: XCTestCase {
             fileURL: URL(fileURLWithPath: "/tmp/customer.json"), in: store, now: now
         ))
         XCTAssertThrowsError(try PreviewVerification.begin(
-            fileURL: URL(string: "https://example.com/quicklook-sample.json")!, in: store, now: now
+            fileURL: URL(string: "https://example.com/orbispeek-sample.json")!, in: store, now: now
         ))
         let request = try PreviewVerification.begin(fileURL: file, in: store, now: now)
         XCTAssertNil(token(for: request, mode: "code"))
         XCTAssertNil(token(for: request, identifier: "another.provider"))
-        for (name, mode) in [("quicklook-sample.md", "markdown"), ("quicklook-sample.jsonl", "jsonl"), ("quicklook-sample.toml", "code")] {
+        for (name, mode) in [("orbispeek-sample.md", "markdown"), ("orbispeek-sample.jsonl", "jsonl"), ("orbispeek-sample.toml", "code")] {
             let url = file.deletingLastPathComponent().appendingPathComponent(name)
             let request = try PreviewVerification.begin(fileURL: url, in: store, now: now)
             let token = try XCTUnwrap(PreviewVerification.renderedSampleToken(

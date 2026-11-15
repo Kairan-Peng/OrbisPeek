@@ -43,6 +43,11 @@ public enum FileTypeRegistry {
         Array(Set(all.flatMap(\.utis))).sorted()
     }
 
+    /// The generic route is tried only for files whose resolved type is public.data.
+    public static var previewUTIs: [String] {
+        Array(Set(supportedUTIs + [PreviewRoutingPolicy.unclassifiedType])).sorted()
+    }
+
     private static let filenameMap: [String: PreviewFileType] = all.reduce(into: [:]) { result, type in
         for filename in type.filenames {
             result[filename.lowercased()] = type

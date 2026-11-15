@@ -41,7 +41,7 @@ final class ExtensionDiagnosticsTests: XCTestCase {
             ExtensionDiagnostics.RegistryQueryResult(output: "unexpected future output", exitCode: 0, error: nil),
             ExtensionDiagnostics.RegistryQueryResult(output: "", exitCode: nil, error: "Permission denied"),
         ] {
-            let snapshot = ExtensionDiagnostics.makeSnapshot(hostURL: URL(fileURLWithPath: "/Applications/Quicklook.app"), result: result)
+            let snapshot = ExtensionDiagnostics.makeSnapshot(hostURL: URL(fileURLWithPath: "/Applications/OrbisPeek.app"), result: result)
             XCTAssertFalse(snapshot.querySucceeded)
             XCTAssertEqual(snapshot.registration, .unavailable)
             XCTAssertNotNil(snapshot.queryError)
@@ -50,9 +50,9 @@ final class ExtensionDiagnosticsTests: XCTestCase {
     }
 
     func testQueryFailureDoesNotBecomeUnregisteredEvenWhenOutputHasRows() {
-        let row = registryLine("+", path: "/Applications/Quicklook.app/Contents/PlugIns/QuicklookPreview.appex")
+        let row = registryLine("+", path: "/Applications/OrbisPeek.app/Contents/PlugIns/QuicklookPreview.appex")
         let snapshot = ExtensionDiagnostics.makeSnapshot(
-            hostURL: URL(fileURLWithPath: "/Applications/Quicklook.app"),
+            hostURL: URL(fileURLWithPath: "/Applications/OrbisPeek.app"),
             result: .init(output: row, exitCode: 1, error: nil)
         )
         XCTAssertEqual(snapshot.registration, .unavailable)
@@ -60,7 +60,7 @@ final class ExtensionDiagnosticsTests: XCTestCase {
     }
 
     func testOwnPhysicalCopyIsMatchedWithoutCollapsingDifferentVersions() {
-        let host = URL(fileURLWithPath: "/Applications/Quicklook.app")
+        let host = URL(fileURLWithPath: "/Applications/OrbisPeek.app")
         let currentPath = host.appendingPathComponent("Contents/PlugIns/QuicklookPreview.appex").path
         let output = [
             registryLine("=", version: "0.0.9", path: "/Users/example/Downloads/Quicklook.app/Contents/PlugIns/QuicklookPreview.appex"),
@@ -69,13 +69,13 @@ final class ExtensionDiagnosticsTests: XCTestCase {
         let snapshot = ExtensionDiagnostics.makeSnapshot(hostURL: host, result: .init(output: output, exitCode: 0, error: nil))
         XCTAssertEqual(snapshot.registration, .preferred)
         XCTAssertEqual(snapshot.ownRegistrations.count, 2)
-        XCTAssertTrue(snapshot.guidance.contains(where: { $0.contains("多份 Quicklook") }))
+        XCTAssertTrue(snapshot.guidance.contains(where: { $0.contains("多份 OrbisPeek") }))
     }
 
     func testRegistrationOfAnotherCopyDoesNotClaimCurrentCopyIsEnabled() {
-        let output = registryLine("+", path: "/Users/example/Downloads/Quicklook.app/Contents/PlugIns/QuicklookPreview.appex")
+        let output = registryLine("+", path: "/Users/example/Downloads/OrbisPeek.app/Contents/PlugIns/QuicklookPreview.appex")
         let snapshot = ExtensionDiagnostics.makeSnapshot(
-            hostURL: URL(fileURLWithPath: "/Applications/Quicklook.app"),
+            hostURL: URL(fileURLWithPath: "/Applications/OrbisPeek.app"),
             result: .init(output: output, exitCode: 0, error: nil)
         )
         XCTAssertEqual(snapshot.registration, .differentCopy)
@@ -83,7 +83,7 @@ final class ExtensionDiagnosticsTests: XCTestCase {
     }
 
     func testDefaultElectionIsNotPresentedAsEnabled() {
-        let host = URL(fileURLWithPath: "/Applications/Quicklook.app")
+        let host = URL(fileURLWithPath: "/Applications/OrbisPeek.app")
         let output = registryLine(path: host.appendingPathComponent("Contents/PlugIns/QuicklookPreview.appex").path)
         let snapshot = ExtensionDiagnostics.makeSnapshot(hostURL: host, result: .init(output: output, exitCode: 0, error: nil))
         XCTAssertEqual(snapshot.registration, .defaultElection)
@@ -94,7 +94,7 @@ final class ExtensionDiagnosticsTests: XCTestCase {
     func testConflictRequiresReadableExactTypeOverlapAndRelevantElection() throws {
         let base = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: base) }
-        let host = base.appendingPathComponent("Quicklook.app")
+        let host = base.appendingPathComponent("OrbisPeek.app")
         let own = host.appendingPathComponent("Contents/PlugIns/QuicklookPreview.appex")
         try createBundle(at: own, types: ["net.daringfireball.markdown"])
         var rows = [registryLine("+", path: own.path)]
@@ -120,9 +120,9 @@ final class ExtensionDiagnosticsTests: XCTestCase {
     }
 
     func testInstallLocationAndUnregisteredEmptyQuery() {
-        XCTAssertEqual(ExtensionDiagnostics.installationLocation(for: URL(fileURLWithPath: "/Applications/Quicklook.app")), .applications)
-        XCTAssertEqual(ExtensionDiagnostics.installationLocation(for: URL(fileURLWithPath: "/Volumes/Quicklook/Quicklook.app")), .diskImage)
-        XCTAssertEqual(ExtensionDiagnostics.installationLocation(for: URL(fileURLWithPath: "/Users/example/work/.build/xcode/Quicklook.app")), .development)
+        XCTAssertEqual(ExtensionDiagnostics.installationLocation(for: URL(fileURLWithPath: "/Applications/OrbisPeek.app")), .applications)
+        XCTAssertEqual(ExtensionDiagnostics.installationLocation(for: URL(fileURLWithPath: "/Volumes/OrbisPeek/OrbisPeek.app")), .diskImage)
+        XCTAssertEqual(ExtensionDiagnostics.installationLocation(for: URL(fileURLWithPath: "/Users/example/work/.build/xcode/OrbisPeek.app")), .development)
         let snapshot = ExtensionDiagnostics.makeSnapshot(hostURL: URL(fileURLWithPath: "/Applications/Missing.app"), result: .init(output: " (0 plug-ins)", exitCode: 0, error: nil))
         XCTAssertFalse(snapshot.extensionPresent)
         XCTAssertTrue(snapshot.querySucceeded)

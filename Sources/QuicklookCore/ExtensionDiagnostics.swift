@@ -165,7 +165,7 @@ public enum ExtensionDiagnostics {
         var unreadable = 0
         var conflicts: [QuickLookExtensionConflict] = []
         if querySucceeded {
-            let supported = Set(FileTypeRegistry.supportedUTIs)
+            let supported = Set(FileTypeRegistry.previewUTIs)
             for entry in parsed.entries where entry.identifier != extensionIdentifier {
                 guard !entry.identifier.hasPrefix("com.apple."),
                       ![.ignored, .superseded].contains(entry.election) else { continue }
@@ -185,22 +185,22 @@ public enum ExtensionDiagnostics {
 
         let installation = installationLocation(for: hostURL)
         var guidance: [String] = []
-        if !extensionPresent { guidance.append("应用中的预览扩展缺失，请重新安装完整的 Quicklook.app。") }
-        if installation != .applications { guidance.append("将 Quicklook.app 移入应用程序目录后打开一次，再前往系统设置检查快速查看扩展。") }
+        if !extensionPresent { guidance.append("应用中的预览扩展缺失，请重新安装完整的 OrbisPeek.app。") }
+        if installation != .applications { guidance.append("将 OrbisPeek.app 移入应用程序目录后打开一次，再前往系统设置检查快速查看扩展。") }
         switch registration {
         case .unavailable:
             guidance.append("当前进程无法读取系统扩展登记状态；这不代表扩展未启用。请在系统设置中检查，并用样本的 Space 预览确认。")
         case .ignored:
-            guidance.append("请在系统设置的快速查看扩展中启用 Quicklook。")
+            guidance.append("请在系统设置的快速查看扩展中启用 OrbisPeek。")
         case .unregistered, .differentCopy:
-            guidance.append("请打开当前安装位置的 Quicklook，并检查是否保留了旧版本或另一份副本。")
+            guidance.append("请打开当前安装位置的 OrbisPeek，并检查是否保留了旧版本或另一份副本。")
         case .debugger, .superseded, .unknown:
             guidance.append("当前登记状态需要核对；请使用安装后的应用，并在系统设置中检查快速查看扩展。")
         case .preferred, .defaultElection:
             guidance.append("登记状态不能证明 Finder 最终选择了本扩展，请使用样本进行实际预览。")
         }
-        if own.count > 1 { guidance.append("系统登记了多份 Quicklook 预览扩展；建议只保留应用程序目录中的正式安装副本。") }
-        if !conflicts.isEmpty { guidance.append("发现支持相同文件类型的其他扩展；若显示的不是 Quicklook，请在系统设置中选择要使用的扩展。") }
+        if own.count > 1 { guidance.append("系统登记了多份 OrbisPeek 预览扩展；建议只保留应用程序目录中的正式安装副本。") }
+        if !conflicts.isEmpty { guidance.append("发现支持相同文件类型的其他扩展；若显示的不是 OrbisPeek，请在系统设置中选择要使用的扩展。") }
         if unreadable > 0 { guidance.append("部分扩展信息无法读取，当前冲突检查可能不完整。") }
 
         let queryError: String?

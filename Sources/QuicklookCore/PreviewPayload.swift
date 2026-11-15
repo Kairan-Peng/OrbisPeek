@@ -11,9 +11,11 @@ public struct PreviewPayload: Codable, Sendable {
     public let truncated: Bool
     public let warning: String?
 
-    public static func load(url: URL, limit: Int = 524_288) throws -> PreviewPayload {
-        let loaded = try TextLoader.load(url: url, limit: limit)
-        let type = FileTypeRegistry.classify(fileName: url.lastPathComponent)
+    public static func load(url: URL, limit: Int = 524_288,
+                            decodingPolicy: TextDecodingPolicy = .automatic,
+                            forcePlainText: Bool = false) throws -> PreviewPayload {
+        let loaded = try TextLoader.load(url: url, limit: limit, decodingPolicy: decodingPolicy)
+        let type = forcePlainText ? nil : FileTypeRegistry.classify(fileName: url.lastPathComponent)
         return PreviewPayload(
             fileName: url.lastPathComponent, text: loaded.text,
             language: type?.language ?? "plaintext", mode: type?.mode ?? "code",

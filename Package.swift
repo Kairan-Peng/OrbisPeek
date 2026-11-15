@@ -14,6 +14,7 @@ let package = Package(
         .target(name: "QuicklookUI", dependencies: ["QuicklookCore"], resources: [.process("Resources")]),
         .executableTarget(name: "QuicklookProbe", dependencies: ["QuicklookCore", "QuicklookUI"]),
         .testTarget(name: "QuicklookCoreTests", dependencies: ["QuicklookCore"]),
+        .testTarget(name: "QuicklookUITests", dependencies: ["QuicklookUI"]),
     ],
     swiftLanguageModes: [.v5]
 )

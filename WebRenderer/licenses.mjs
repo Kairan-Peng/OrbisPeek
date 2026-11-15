@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const lock = JSON.parse(await readFile(join(directory, "package-lock.json"), "utf8"));
-const sections = ["Quicklook — third-party software notices", "\nFreeLook task-list token adaptation\nSource commit: d3f002589917f51279b49ea8b12b3bb343dd82dc\nhttps://github.com/neolee/freelook\n\n" + await readFile(join(directory, "licenses/FreeLook-MIT.txt"), "utf8")];
+const sections = ["OrbisPeek — third-party software notices", "\nFreeLook task-list token adaptation\nSource commit: d3f002589917f51279b49ea8b12b3bb343dd82dc\nhttps://github.com/neolee/freelook\n\n" + await readFile(join(directory, "licenses/FreeLook-MIT.txt"), "utf8")];
 const packages = [];
 for (const [path, metadata] of Object.entries(lock.packages)) {
   if (!path.startsWith("node_modules/") || metadata.dev) continue;

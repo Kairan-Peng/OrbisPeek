@@ -1,6 +1,6 @@
 # Third-party code and licenses
 
-Quicklook is MIT licensed. Dependencies and adapted source retain their original licenses.
+OrbisPeek is MIT licensed. Dependencies and adapted source retain their original licenses.
 
 ## Adapted Swift and renderer integration
 

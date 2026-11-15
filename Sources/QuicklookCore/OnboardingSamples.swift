@@ -4,11 +4,11 @@ import Foundation
 /// rather than reading the renderer's bundle directly.
 public enum OnboardingSamples {
     public static let previewFileNames = [
-        "quicklook-sample.md", "quicklook-sample.json",
-        "quicklook-sample.jsonl", "quicklook-sample.toml",
+        "orbispeek-sample.md", "orbispeek-sample.json",
+        "orbispeek-sample.jsonl", "orbispeek-sample.toml",
     ]
 
-    private static let allFileNames = previewFileNames + ["quicklook-sample.png"]
+    private static let allFileNames = previewFileNames + ["orbispeek-sample.png"]
     private static let lock = NSLock()
 
     /// Explicit verification uses new URLs so Quick Look cannot satisfy the check
@@ -18,7 +18,7 @@ public enum OnboardingSamples {
             for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true
         )
         return try prepare(
-            in: cache.appendingPathComponent("Quicklook Preview Samples", isDirectory: true),
+            in: cache.appendingPathComponent("OrbisPeek Preview Samples", isDirectory: true),
             freshForVerification: freshForVerification
         )
     }

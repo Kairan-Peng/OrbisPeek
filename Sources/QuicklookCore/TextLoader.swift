@@ -15,6 +15,12 @@ public struct LoadedText: Codable, Sendable {
     public let warning: String?
 }
 
+public enum TextDecodingPolicy: Sendable, Equatable {
+    case automatic
+    /// Accept UTF-8 or an explicit Unicode BOM without inferring an encoding.
+    case verifiedUnicode
+}
+
 public enum TextLoaderError: LocalizedError {
     case invalidLimit
     case notRegularFile
@@ -39,7 +45,8 @@ public enum TextLoader {
     public static let defaultLimit = 512 * 1024
 
     /// Reads a bounded prefix, with at most four lookahead bytes for encoding boundaries.
-    public static func load(url: URL, limit: Int = defaultLimit) throws -> LoadedText {
+    public static func load(url: URL, limit: Int = defaultLimit,
+                            decodingPolicy: TextDecodingPolicy = .automatic) throws -> LoadedText {
         guard limit > 0, limit <= Int.max - 4 else { throw TextLoaderError.invalidLimit }
 
         let values = try url.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
@@ -57,7 +64,7 @@ public enum TextLoader {
         }
 
         // BOMs and the UTF-16 byte pattern must be considered before NUL detection.
-        let selection = try selectEncoding(data: rawData, incompleteTail: truncated)
+        let selection = try selectEncoding(data: rawData, incompleteTail: truncated, policy: decodingPolicy)
         let preview = Data(rawData.prefix(limit).dropFirst(min(selection.bomBytes, limit)))
         guard let text = decode(preview, as: selection.encoding, incompleteTail: truncated) else {
             throw TextLoaderError.unsupportedEncoding
@@ -83,7 +90,8 @@ public enum TextLoader {
         let inferred: Bool
     }
 
-    private static func selectEncoding(data: Data, incompleteTail: Bool) throws -> EncodingSelection {
+    private static func selectEncoding(data: Data, incompleteTail: Bool,
+                                       policy: TextDecodingPolicy) throws -> EncodingSelection {
         if let bom = detectBOM(data) {
             let body = Data(data.dropFirst(bom.bomBytes))
             guard let text = decode(body, as: bom.encoding, incompleteTail: incompleteTail),
@@ -93,7 +101,7 @@ public enum TextLoader {
 
         guard !hasBinarySignature(data) else { throw TextLoaderError.binaryContent }
 
-        if let utf16 = detectBOMlessUTF16(data),
+        if case .automatic = policy, let utf16 = detectBOMlessUTF16(data),
            let text = decode(data, as: utf16.encoding, incompleteTail: incompleteTail),
            !looksBinary(text) {
             return utf16
@@ -102,7 +110,7 @@ public enum TextLoader {
         guard !looksBinary(data) else { throw TextLoaderError.binaryContent }
 
         // ISO-2022-JP consists of ASCII bytes, so its escape markers precede UTF-8.
-        if hasISO2022JPEscapeSequence(data),
+        if case .automatic = policy, hasISO2022JPEscapeSequence(data),
            decode(data, as: .iso2022JP, incompleteTail: incompleteTail) != nil {
             return EncodingSelection(encoding: .iso2022JP, name: "ISO-2022-JP", bomBytes: 0, inferred: true)
         }
@@ -110,6 +118,8 @@ public enum TextLoader {
         if decode(data, as: .utf8, incompleteTail: incompleteTail) != nil {
             return EncodingSelection(encoding: .utf8, name: "UTF-8", bomBytes: 0, inferred: false)
         }
+
+        guard case .automatic = policy else { throw TextLoaderError.unsupportedEncoding }
 
         // Reuse Apple's statistical detector, rather than assigning a regional encoding
         // to every byte sequence that happens to decode. Legacy results remain guesses.

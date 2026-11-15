@@ -20,7 +20,7 @@ final class OnboardingSamplesTests: XCTestCase {
             XCTAssertEqual(exported.map(\.lastPathComponent), OnboardingSamples.previewFileNames)
             let directory = exported[0].deletingLastPathComponent()
             XCTAssertTrue(directory.lastPathComponent.hasPrefix("v1-check-"))
-            XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent("quicklook-sample.png").path))
+            XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent("orbispeek-sample.png").path))
         }
     }
 
@@ -31,9 +31,9 @@ final class OnboardingSamplesTests: XCTestCase {
         XCTAssertEqual(first.map(\.lastPathComponent), OnboardingSamples.previewFileNames)
         XCTAssertEqual(try OnboardingSamples.prepare(in: root), first)
         let markdown = try String(contentsOf: first[0], encoding: .utf8)
-        XCTAssertTrue(markdown.contains("(quicklook-sample.png)"))
+        XCTAssertTrue(markdown.contains("(orbispeek-sample.png)"))
         XCTAssertFalse(markdown.contains("https://"))
-        let image = first[0].deletingLastPathComponent().appendingPathComponent("quicklook-sample.png")
+        let image = first[0].deletingLastPathComponent().appendingPathComponent("orbispeek-sample.png")
         XCTAssertTrue(FileManager.default.fileExists(atPath: image.path))
     }
 
@@ -45,7 +45,7 @@ final class OnboardingSamplesTests: XCTestCase {
         let second = try OnboardingSamples.prepare(in: root)
         XCTAssertNotEqual(first[0].deletingLastPathComponent(), second[0].deletingLastPathComponent())
         XCTAssertEqual(try String(contentsOf: first[0], encoding: .utf8), "用户保留的修改")
-        XCTAssertTrue(try String(contentsOf: second[0], encoding: .utf8).contains("Quicklook 首次预览检查"))
+        XCTAssertTrue(try String(contentsOf: second[0], encoding: .utf8).contains("OrbisPeek 首次预览检查"))
     }
 
     func testDoesNotFollowAnExistingSampleDirectorySymlink() throws {

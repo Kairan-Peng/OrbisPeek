@@ -4,7 +4,7 @@
 
 ## 首次使用样本
 
-`OnboardingSamples.prepare()` 将应用内的五个资源导出到当前宿主沙盒的 `Caches/Quicklook Preview Samples/v1`，返回四份文档的文件系统 URL。PNG 与 Markdown 同目录，作为相对图片资源。已有内容完全一致时复用；已有样本被编辑、删除或被改成符号链接时，创建新的随机子目录，不覆盖原来的内容。
+`OnboardingSamples.prepare()` 将应用内的五个资源导出到当前宿主沙盒的 `Caches/OrbisPeek Preview Samples/v1`，返回四份文档的文件系统 URL。PNG 与 Markdown 同目录，作为相对图片资源。已有内容完全一致时复用；已有样本被编辑、删除或被改成符号链接时，创建新的随机子目录，不覆盖原来的内容。
 
 显式自检应调用 `OnboardingSamples.prepare(freshForVerification: true)`：每次将同样的四份文档和 PNG 复制到新的 `v1-check-UUID` 子目录，让文件 URL 随本次检查变化，规避系统按原 URL 复用旧预览。默认 `prepare()` 保留稳定复用语义。新 URL 本身仍不是扩展执行成功的证据，必须收到本次自有扩展回执后再标记验证通过；已有样本目录不自动删除，以免丢失用户修改。
 
@@ -12,11 +12,11 @@
 
 | 文件 | 验收内容 |
 |---|---|
-| `quicklook-sample.md` | 标题、任务列表、表格、代码块；顶部本项目工具栏；原文切换与中文查找 |
-| `quicklook-sample.png` | 160 × 96 蓝色 / 米色棋盘；未授权目录时提示受限，授权后在 Markdown 中显示 |
-| `quicklook-sample.json` | 格式化后保留完整大整数、两个同名键和中文；原文切换不改写源文件 |
-| `quicklook-sample.jsonl` | 三条记录中故意包含一条坏行，最后一条中文记录仍可读 |
-| `quicklook-sample.toml` | 保留注释、section、数组、中文及 emoji |
+| `orbispeek-sample.md` | 标题、任务列表、表格、代码块；顶部本项目工具栏；原文切换与正文复制 |
+| `orbispeek-sample.png` | 160 × 96 蓝色 / 米色棋盘；未授权目录时提示受限，授权后在 Markdown 中显示 |
+| `orbispeek-sample.json` | 格式化后保留完整大整数、两个同名键和中文；原文切换不改写源文件 |
+| `orbispeek-sample.jsonl` | 三条记录中故意包含一条坏行，最后一条中文记录仍可读 |
+| `orbispeek-sample.toml` | 保留注释、section、数组、中文及 emoji |
 
 宿主里的自有渲染组件显示成功，只说明渲染链可用。“预览样本”应将导出的真实 URL 交给系统 Quick Look 或 Finder，并由本项目扩展的运行回执 / 实际界面确认 provider。Markdown 正文排版也可能由其他插件完成，因此单看标题、表格或图片不能证明本项目已被调用。
 
@@ -25,18 +25,18 @@
 ## 只读安装检查
 
 ```sh
-python3 scripts/validate-installed.py /Applications/Quicklook.app \
+python3 scripts/validate-installed.py /Applications/OrbisPeek.app \
   --mode release --require-installed --require-registered \
   --expect-arch arm64 --expect-arch x86_64 \
   --output .build/validation/installed-release.json
 
 # 按实际版本与构建号检查升级后的同一个安装路径。
-python3 scripts/validate-installed.py /Applications/Quicklook.app \
+python3 scripts/validate-installed.py /Applications/OrbisPeek.app \
   --mode release --expect-version 0.1.1 --expect-build 10 \
   --require-registered --output .build/validation/after-upgrade.json
 
 # 在人工移除这个精确路径后检查文件与注册证据。
-python3 scripts/validate-installed.py /Applications/Quicklook.app \
+python3 scripts/validate-installed.py /Applications/OrbisPeek.app \
   --mode absent --output .build/validation/after-uninstall.json
 ```
 
@@ -62,7 +62,7 @@ python3 scripts/validate-installed.py /Applications/Quicklook.app \
 | 图片授权 | 在宿主选择普通目录中的测试样本文件夹；Space 预览 Markdown；退出宿主并重新启动扩展后再预览 | 图片显示，文字与权限提示正确；不请求根目录、完全磁盘访问或网络图片 |
 | 撤销 | 宿主撤销样本目录授权，关闭现有预览；启动新的扩展预览同一 Markdown | 本地图片重新受限，原文继续可读；保留的私有书签缓存不能绕过共享授权列表 |
 | 升级 | 同一 bundle identifier、安装路径和签名身份，用更大的 build 号替换旧应用；记录前后版本、签名、注册路径、回执 | 新版本实际被调用；不再从旧 `.build`、旧 DMG 或备份路径加载；用户已有样本修改不被覆盖 |
-| 卸载 | 人工移除本轮安装的精确 `Quicklook.app`；不顺手删除用户样本或偏好；保留 absent 报告 | 指定路径已不存在，无存活扩展从该路径加载；TXT / HTML 仍可使用系统 Space 预览 |
+| 卸载 | 人工移除本轮安装的精确 `OrbisPeek.app`；不顺手删除用户样本或偏好；保留 absent 报告 | 指定路径已不存在，无存活扩展从该路径加载；TXT / HTML 仍可使用系统 Space 预览 |
 | 回退 / 重装 | 重新放回上一个已验证的签名产物或本轮 Release；检查路径、签名、回执 | 能恢复文本预览；图片权限如失效应明确提示重新选择目录，不扩大授权 |
 
 ## 本轮记录边界

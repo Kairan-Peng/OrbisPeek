@@ -56,11 +56,116 @@ class FinderEvidenceTests(unittest.TestCase):
             "_source": {"path": str(self.root / "observations.jsonl"), "line": 1, "index": 0},
         }
 
+    def current_ax(self, case, *, html=False):
+        mode = case.get("expectedMode", "code")
+        lines = ["0 窗口 快速查看",
+                 f"  1 HTML content Description: {case['fileName']} · OrbisPeek, URL: {MODULE.OWN_URL}",
+                 f"    2 heading {case['fileName'].replace('.', ' .')}, Value: 1",
+                 "    3 toggle button 切换长行自动换行, Value: on",
+                 "    4 button 查找（⌘F）"]
+        if mode != "code":
+            lines.append("    5 toggle button 查看原文, Value: off")
+        if html:
+            lines.append("    6 HTML content URL: quicklook-app://bundle/document/12345678-1234-1234-1234-123456789ABC/content.html")
+            lines.append(f"      7 heading {case['marker']}, Value: 1")
+        else:
+            lines.append(f"    7 text {case['marker']}")
+        return "\n".join(lines)
+
+    def test_current_icon_toolbar_needs_context_but_no_copy_button(self):
+        case = self.cases[0]
+        ax = self.current_ax(case)
+        self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "own-provider-content-pass")
+        for invalid in [ax.replace("切换长行自动换行", "icon"),
+                        ax.replace("查找（⌘F）", "icon"),
+                        ax.replace(MODULE.OWN_URL, "https://example.invalid/index.html"),
+                        ax.replace(MODULE.OWN_URL, MODULE.OWN_URL + "/wrong"),
+                        ax.replace(case["fileName"], "wrong.swift"),
+                        ax + "\n10 window Quick Look"]:
+            with self.subTest(ax=invalid):
+                self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=invalid)])["status"], "unknown")
+
+    def test_no_find_toolbar_confirms_own_provider_with_same_shell_title_and_body(self):
+        for mode in ("code", "markdown"):
+            case = {**self.cases[0], "expectedMode": mode}
+            ax = self.current_ax(case).replace("    4 button 查找（⌘F）\n", "")
+            with self.subTest(mode=mode):
+                result = MODULE.analyze_case(case, [self.record(case, ax=ax)])
+                self.assertEqual(result["status"], "own-provider-content-pass")
+                self.assertEqual(MODULE.own_provider_evidence(ax, mode)["toolbarProfile"], "icons-no-find")
+                for invalid in (ax.replace("切换长行自动换行", "icon"),
+                                ax.replace(case["fileName"], "wrong.swift"),
+                                ax.replace(case["marker"], "missing"),
+                                ax.replace(MODULE.OWN_URL, "https://example.invalid/index.html")):
+                    self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=invalid)])["status"], "unknown")
+
+    def test_no_find_toolbar_needs_no_visible_filename_heading(self):
+        for mode in ("code", "markdown", "json", "jsonl", "html"):
+            case = {**self.cases[0], "expectedMode": mode}
+            ax = self.current_ax(case, html=mode == "html")
+            ax = ax.replace("    4 button 查找（⌘F）\n", "")
+            ax = ax.replace(f"    2 heading {case['fileName'].replace('.', ' .')}, Value: 1\n", "")
+            with self.subTest(mode=mode):
+                result = MODULE.analyze_case(case, [self.record(case, ax=ax)])
+                self.assertEqual(result["status"], "own-provider-content-pass")
+                self.assertTrue(result["evidenceChecks"]["ownPreviewTitleFileNameMatches"])
+                for invalid in (ax.replace(f"Description: {case['fileName']} · OrbisPeek", "Description: wrong.swift · OrbisPeek"),
+                                ax.replace(MODULE.OWN_URL, "https://example.invalid/index.html"),
+                                ax.replace(case["marker"], "missing")):
+                    self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=invalid)])["status"], "unknown")
+
+    def test_html_requires_controlled_child_body_and_rendered_mode_context(self):
+        case = {**self.cases[0], "expectedMode": "html"}
+        ax = self.current_ax(case, html=True).replace("切换长行自动换行", "(disabled) 自动换行适用于原文视图")
+        self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "own-provider-content-pass")
+        invalid = [
+            self.current_ax(case),
+            ax.replace("    5 toggle button 查看原文, Value: off\n", ""),
+            ax.replace("查看原文, Value: off", "查看预览, Value: on"),
+            ax.replace("quicklook-app://bundle/document/", "https://example.invalid/document/"),
+            ax.replace("      7 heading", "  7 heading"),
+            ax.replace("      7 heading", "      7 search text field 查找文本"),
+            ax.replace(case["marker"], "missing") + f"\nThe focused UI element is 7 text {case['marker']}",
+            ax.replace("      7 heading", "      7 HTML content URL: https://example.invalid/\n        8 heading"),
+            f"0 窗口 快速查看\n  1 文本输入区 {case['marker']}\n  2 文本 {case['fileName']}",
+        ]
+        for snapshot in invalid:
+            with self.subTest(ax=snapshot):
+                self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=snapshot)])["status"], "unknown")
+        native = invalid[-1]
+        record = self.record(case, ax=native, provider={"kind": "system", "systemEvidence": "native-text-area"})
+        self.assertEqual(MODULE.analyze_case(case, [record])["status"], "unknown")
+
+    def test_current_mode_labels_match_the_expected_format(self):
+        for mode, return_label in [("markdown", "查看预览"), ("json", "查看格式化内容"), ("jsonl", "查看记录视图")]:
+            case = {**self.cases[0], "expectedMode": mode}
+            ax = self.current_ax(case)
+            for label in ("查看原文", return_label):
+                with self.subTest(mode=mode, label=label):
+                    snapshot = ax.replace("查看原文", label)
+                    self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=snapshot)])["status"], "own-provider-content-pass")
+            for invalid in (ax.replace("    5 toggle button 查看原文, Value: off\n", ""),
+                            ax.replace("查看原文", "查看记录视图" if mode != "jsonl" else "查看格式化内容")):
+                with self.subTest(mode=mode, invalid=invalid):
+                    self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=invalid)])["status"], "unknown")
+
+    def test_external_child_cannot_supply_shell_content_or_title(self):
+        case = self.cases[0]
+        ax = self.current_ax(case).replace(f"    7 text {case['marker']}",
+                f"    7 HTML content Description: {case['fileName']}, URL: https://example.invalid/\n      8 text {case['marker']}")
+        self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "unknown")
+        # A child web title cannot repair a wrong shell Description.
+        ax = ax.replace(f"Description: {case['fileName']} · OrbisPeek", "Description: wrong.swift · OrbisPeek")
+        self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "unknown")
+
     def test_requires_real_title_marker_url_and_toolbar_for_own_pass(self):
         case = self.cases[0]
-        self.assertEqual(MODULE.analyze_case(case, [self.record(case)])["status"], "own-provider-content-pass")
-        ax = self.own_ax(case).replace("    4 button 复制\n", "")
-        self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "unknown")
+        for brand in ("Quicklook", "OrbisPeek"):
+            with self.subTest(brand=brand):
+                ax = self.own_ax(case).replace(" · Quicklook,", f" · {brand},")
+                self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "own-provider-content-pass")
+                ax = ax.replace("    4 button 复制\n", "")
+                self.assertEqual(MODULE.analyze_case(case, [self.record(case, ax=ax)])["status"], "unknown")
 
     def test_boolean_registration_or_window_claims_cannot_substitute_for_ax(self):
         case = self.cases[0]
@@ -189,7 +294,7 @@ class FinderEvidenceTests(unittest.TestCase):
 
     def test_partial_report_keeps_every_case_and_never_counts_missing_as_pass(self):
         record = self.record(self.cases[0])
-        report = MODULE.build_report(self.manifest, [record], manifest_path=self.manifest_path)
+        report = MODULE.build_report(self.manifest, [record], manifest_path=self.manifest_path, expected_count=2)
         self.assertEqual(len(report["cases"]), 2)
         self.assertEqual(report["summary"]["own-provider-content-pass"], 1)
         self.assertEqual(report["summary"]["unknown"], 1)
@@ -205,7 +310,7 @@ class FinderEvidenceTests(unittest.TestCase):
             "appPath": str(Path.home() / "Applications/Quicklook.app"),
             "privateWindowTitle": "PRIVATE_OTHER_FINDER_TAB",
         }
-        report = MODULE.build_report(self.manifest, [record], manifest_path=self.manifest_path)
+        report = MODULE.build_report(self.manifest, [record], manifest_path=self.manifest_path, expected_count=2)
         encoded = json.dumps(report, ensure_ascii=False)
         self.assertNotIn("PRIVATE_OTHER_FINDER_TAB", encoded)
         self.assertNotIn(str(Path.home()), encoded)
@@ -220,7 +325,7 @@ class FinderEvidenceTests(unittest.TestCase):
     def test_external_observation_source_paths_are_neutralized(self):
         record = self.record(self.cases[0])
         record["_source"]["path"] = "/Volumes/PrivateClient/observations.jsonl"
-        report = MODULE.build_report(self.manifest, [record], manifest_path=self.manifest_path,
+        report = MODULE.build_report(self.manifest, [record], manifest_path=self.manifest_path, expected_count=2,
                                      observation_sources=[{"path": "/Volumes/PrivateClient/observations.jsonl", "sha256": "0" * 64}])
         encoded = json.dumps(report)
         self.assertNotIn("PrivateClient", encoded)
@@ -232,14 +337,14 @@ class FinderEvidenceTests(unittest.TestCase):
                     "appPath": "/Applications/Quicklook.app", "appVersion": "0.1.1", "appBuild": "10"}
         for record in records:
             record["runMetadata"] = dict(metadata)
-        report = MODULE.build_report(self.manifest, records, manifest_path=self.manifest_path)
+        report = MODULE.build_report(self.manifest, records, manifest_path=self.manifest_path, expected_count=2)
         self.assertTrue(report["summary"]["allCasesVerifiedOnSingleRecordedBuild"])
         records[1]["runMetadata"]["appBuild"] = "9"
-        report = MODULE.build_report(self.manifest, records, manifest_path=self.manifest_path)
+        report = MODULE.build_report(self.manifest, records, manifest_path=self.manifest_path, expected_count=2)
         self.assertTrue(report["summary"]["allCasesContentPassed"])
         self.assertFalse(report["summary"]["allCasesVerifiedOnSingleRecordedBuild"])
         records[1].pop("runMetadata")
-        report = MODULE.build_report(self.manifest, records, manifest_path=self.manifest_path)
+        report = MODULE.build_report(self.manifest, records, manifest_path=self.manifest_path, expected_count=2)
         self.assertEqual(report["summary"]["completeRunMetadataCaseCount"], 1)
         self.assertFalse(report["summary"]["allCasesVerifiedOnSingleRecordedBuild"])
 
@@ -373,6 +478,38 @@ class BoundaryPolicyTests(unittest.TestCase):
         report = self.report(records=self.records[:-1])
         self.assertEqual(report["summary"]["verifiedObservationCaseCount"], 226)
         self.assertFalse(report["summary"]["approvedBoundaryGatePassed"])
+
+    def test_explicit_230_profile_uses_the_same_count_for_loading_and_gates(self):
+        for index in range(3):
+            case = dict(self.cases[-1])
+            case.update(id=f"synthetic.extra{index}", extension=f"extra{index}",
+                        fileName=f"coverage-extra{index}.log", marker=f"QLCOVERAGE_EXTRA_{index}")
+            path = self.root / case["fileName"]
+            path.write_text("// " + case["marker"] + "\n")
+            case.update(path=str(path), sha256=MODULE.digest(path))
+            self.cases.append(case)
+            record = self.record(case)
+            record["runMetadata"] = dict(self.records[-1]["runMetadata"])
+            self.records.append(record)
+        self.manifest["caseCount"] = 230
+        self.manifest_path.write_text(json.dumps(self.manifest))
+        loaded = MODULE.load_manifest(self.manifest_path, expected_count=230)
+        report = MODULE.build_report(loaded, self.records, manifest_path=self.manifest_path,
+                                     policy=self.policy, expected_count=230)
+        self.assertEqual(report["summary"]["expectedCaseCount"], 230)
+        self.assertTrue(report["summary"]["approvedBoundaryGatePassed"])
+        self.assertFalse(MODULE.build_report(loaded, self.records[:-1], manifest_path=self.manifest_path,
+                                            policy=self.policy, expected_count=230)["summary"]["approvedBoundaryGatePassed"])
+        duplicate = MODULE.build_report(loaded, self.records + [self.records[-1]], manifest_path=self.manifest_path,
+                                        policy=self.policy, expected_count=230)
+        self.assertFalse(duplicate["summary"]["approvedBoundaryGatePassed"])
+        self.assertFalse(duplicate["summary"]["inputValidationPassed"])
+        mismatched = MODULE.build_report(loaded, self.records, manifest_path=self.manifest_path,
+                                         policy=self.policy, expected_count=227)
+        self.assertFalse(mismatched["summary"]["approvedBoundaryGatePassed"])
+        self.assertFalse(mismatched["summary"]["inputValidationPassed"])
+        with self.assertRaises(ValueError):
+            MODULE.load_manifest(self.manifest_path, expected_count=227)
 
     def test_invalid_policy_is_rejected_instead_of_weakening_the_gate(self):
         base = json.loads(self.policy_path.read_text())

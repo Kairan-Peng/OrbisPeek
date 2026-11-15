@@ -1,5 +1,17 @@
 [
   {
+    "id": "html",
+    "language": "html",
+    "mode": "html",
+    "extensions": [
+      "html",
+      "htm",
+      "xhtml"
+    ],
+    "filenames": [],
+    "utis": []
+  },
+  {
     "id": "markdown",
     "language": "markdown",
     "mode": "markdown",

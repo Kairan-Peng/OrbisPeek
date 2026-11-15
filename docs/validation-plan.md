@@ -12,13 +12,14 @@ python3 scripts/make-fixtures.py
 
 覆盖范围：
 
-- Markdown：GFM、中文、代码块、表格、任务列表，以及正常图片、带空格路径、远程资源、父目录路径、符号链接越界、SVG、原始脚本。
+- Markdown：GFM、中文、代码块、表格、任务列表，普通图片及受控 `<img>` 的 96px / 宽高 / 原文往返；代码与注释里的标签保持文字，检查带空格路径、远程资源、父目录路径、符号链接越界、SVG、原始脚本与非法图片属性。
+- HTML / HTM / XHTML：默认静态渲染、内嵌 CSS、原文切换、本地光栅图片，以及脚本、事件属性、表单、子 frame 和远程资源的禁止边界。
 - JSON / JSONL：正常对象、大整数、重复键、语法错误、空行、坏行后的有效记录、脚本字符串；JSONC / JSON5 按源码高亮。
 - YAML、TOML、properties、INI、conf / cfg、日志、长行、零字节文件。
 - 无扩展名 `README`、`Dockerfile`、`Makefile`，以及 `.env` / `.gitignore` / `.zshrc`。
 - 常用源码：Swift、Python、JavaScript / TypeScript / TSX、Go、Rust、Java、C / C++、SQL、Shell、CSS、diff。
 - UTF-8 / BOM、UTF-16 LE/BE（有 / 无 BOM）、GB18030（短 / 中 / 长，含四字节字符）、GBK、Big5、Shift-JIS。
-- 二进制伪装成 `.log`、损坏的 UTF-16，以及保留系统预览的 `.txt` / `.html`。
+- 二进制伪装成 `.log`、损坏的 UTF-16，以及保留系统预览的 `.txt`。旧 `text/system-preview.html` 保留原始样本内容，当前不再作为系统 provider 的预期。
 
 旧编码的极短输入本身有歧义。自动推测警告是必要的，不能因为字符串能解码或字符数相同就认定编码准确；核心单元测试另外对真实旧编码样本做原文相等断言。
 
@@ -56,6 +57,7 @@ python3 scripts/make-fixtures.py --large --inspect
 .build/debug/quicklook-probe render samples/fixtures/markdown/resources.md --output .build/validation/resources.json --snapshot .build/validation/resources.png
 .build/debug/quicklook-probe render samples/fixtures/data/large-integer-duplicate-keys.json --output .build/validation/json.json
 .build/debug/quicklook-probe render samples/fixtures/data/bad-middle-row.jsonl --output .build/validation/jsonl.json
+python3 scripts/validate-core.py --include-preview-interactions --output .build/validation/preview-registry.json
 ```
 
 截图前需确认输出目录存在。期望：
@@ -63,6 +65,7 @@ python3 scripts/make-fixtures.py --large --inspect
 | 输入 | 通过条件 |
 |---|---|
 | 基础 Markdown | 表格 / 任务列表 / 高亮正确，中文可读，子目录 PNG 可见 |
+| 静态 HTML / HTM / XHTML | 不强制 mode 即进入受控子文档，默认浅色文档画布保留作者配色，明确的作者 dark scheme 可覆盖；切换后为高亮原文，再切回仍能选择与复制当前正文 |
 | 资源边界 | 只允许两幅目录内光栅图片；远程、父目录、符号链接越界、文件 URL 和 SVG 不加载 |
 | 文档脚本 | 标题不出现 `UNSAFE_SCRIPT_EXECUTED`，脚本不会修改全局变量或触发请求 |
 | 大整数 / 重复键 | 每一位数字与两个重复键都保留，原文和格式化视图一致 |
@@ -72,9 +75,11 @@ python3 scripts/make-fixtures.py --large --inspect
 
 `render` probe 是宿主进程中的 WKWebView 验证。图片在这里加载成功，只能证明资源策略与渲染链正常；还必须在沙盒 extension 中重复验证权限。
 
+`--include-preview-interactions` 另行启动合成本地计数端点，检查实际 WebKit 正对照、严格子 CSP、惰性解析的图片请求边界、当前文档选区、模式切换、过期代次及生命周期。报告分别记录常规渲染和交互结果；强制 HTML mode 的引擎检查与正常文件识别检查分开。离屏原生 action / NSEvent 检查不等于 Finder 的实体键盘或沙盒目录授权验收。查找已按最新范围移除，不再进行查询 / IME 验收。
+
 ## 4. 真实 Finder / Space 路由
 
-安装本地构建后，对格式族逐项记录：系统版本、文件路径、实际 UTType、实际 provider、可见预览、资源受限信息。至少覆盖 Markdown、JSON、JSONL、YAML、TOML、properties、INI、log、常用源码、无扩展名及 dotfile。
+安装本地构建后，对格式族逐项记录：系统版本、文件路径、实际 UTType、实际 provider、可见预览、资源受限信息。至少覆盖 Markdown、JSON、JSONL、YAML、TOML、properties、INI、log、常用源码、无扩展名及 dotfile。HTML / HTM / XHTML 另验“打开方式 → OrbisPeek”的独立阅读窗口，保留原 Space 行为。
 
 需要区分：
 
@@ -85,6 +90,18 @@ python3 scripts/make-fixtures.py --large --inspect
 
 只有第 4 项通过才能记录为真实预览通过。`inspect` 能完成的是第 2 项相关证据；`qlmanage` 注册输出也不能单独证明第 4 项。
 
-TXT、HTML、PDF、Office 安装前后使用系统 provider，不能为了增加覆盖数抢占它们。TypeScript `.ts` 与媒体传输流冲突、已有同类插件的竞争、文件关联变化都要单独记录，不将某一台机器的结果推广为所有系统结论。
+TXT、PDF、Office 安装前后使用系统 provider，不能为了增加覆盖数抢占它们。HTML 只增加精确的 `public.html` / `public.xhtml` 声明，不增加宽泛 text/data/XML 文本兜底。TypeScript `.ts` 与媒体传输流冲突、已有同类插件的竞争、文件关联变化都要单独记录，不将某一台机器的结果推广为所有系统结论。
+
+最终候选还需以下真实交互验收；先确认候选进程路径、版本以及精确主壳和当前文件，不能用旧安装或另一 provider 的窗口作证：
+
+| 操作 | 通过条件 |
+|---|---|
+| 无查找界面 | Finder / 宿主 / 独立窗口无查找按钮与输入栏，⌘F 不展开查找 |
+| 正文选择与复制 | 拖选及正文 ⌘A/C 可粘贴为纯文本，跨行 / 空行 / 表格 / 中文 / 大整数准确，不带行号和资源提示；无正文选区不改变剪贴板 |
+| HTML 默认视图与切换 | 三个后缀经打开方式显示实际受控正文，原文与渲染可往返，复制跟随当前正文；标题 / 图标存在本身不算内容通过 |
+| 窄窗口、深浅色与恢复 | 内部工具栏保持单行元信息与图标，文件名由外层窗口标题展示；隐藏 / 最小化后恢复可继续使用，当前恢复实现会重载并重置模式 |
+| 图片授权 / 撤销及链接 | 沙盒中未授权时受限、授权后仅允许目录内光栅、撤销后重开受限；实际锚点行为另行记录 |
+
+自动按键工具的窗口激活和 key-window 保留行为可能不同于实体键盘，二者结果分开记录。临时登记仅在已获授权范围内操作，结束后恢复原登记和本轮改动的 Finder 界面。本轮证据及仍待验证项见[预览界面验证记录](preview-interface-validation-2026-11-12.md)；既有 227 项历史报告继续保留原版本和日期，不作为新 HTML 覆盖率。
 
 目前开发机为 macOS 27；macOS 15 / 26 需另外的真实测试环境。没有对应环境时应保留未验证标记。

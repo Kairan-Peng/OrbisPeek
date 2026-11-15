@@ -188,7 +188,42 @@ def make_small_fixtures() -> list[dict]:
     add("text/empty.log", "")
     add("text/long-line.log", "long_line=" + "中文abcdefghijklmnopqrstuvwxyz" * 1024 + "\n", note="Toggle wrapping; narrow preview must not make controls inaccessible.")
     add("text/system-preview.txt", "TXT 应保留系统 Quick Look 预览。\n", expectation="system", note="Direct inspect can read this; real Finder provider should remain the system provider.")
-    add("text/system-preview.html", "<!doctype html><html lang=\"zh\"><meta charset=\"utf-8\"><title>系统 HTML</title><h1>保留系统预览</h1><p>Quicklook 不注册接管 HTML。</p></html>\n", expectation="system")
+    add("text/system-preview.html", "<!doctype html><html lang=\"zh\"><meta charset=\"utf-8\"><title>系统 HTML</title><h1>保留系统预览</h1><p>Quicklook 不注册接管 HTML。</p></html>\n", mode="html", note="Legacy input retains its original pre-HTML-support wording; the current registry now uses static HTML preview.")
+
+    # Static HTML fixtures are shared with the HTML engine interaction checks.
+    html_preview = """<!doctype html><html class="fixture-root" lang="zh" dir="ltr" style="font-size:19px;color:rgb(18,52,86)"><head><meta charset="utf-8"><style>
+.fixture-root #root-inherited { font-style: italic; } #html-title { font-size: 31px; }
+#file-basename { color: red !important; } .sample { padding-left: 13px; }
+</style></head><body><main class="sample">
+<h1 id="html-title">Static HTML preview</h1><p id="root-inherited">Root inheritance marker</p><p id="selected">Alpha needle beta 你好</p>
+<p class="toolbar notices blocked-image line-number search-match">Author class names remain readable</p>
+<details id="visibility-details"><summary>Visible summary</summary><p>Hidden detail needle</p><summary>Hidden second summary</summary></details>
+<ul><li>First item</li><li>Second item</li></ul>
+<table><tr><th>Name</th><th>Value</th></tr><tr><td>precision</td><td>9007199254740993123456789</td></tr></table>
+<pre><code>  static &lt;HTML&gt;\\n  source is preserved</code></pre>
+<img src="assets/local-swatch.png" alt="Local raster"><img src="assets/missing.png" alt="Missing raster">
+<p><a href="#bottom">Jump to bottom</a> · <a href="https://example.invalid/">External link</a></p>
+<p style="height:1400px">Scroll space</p><p id="bottom">Omega needle bottom</p>
+<script>window.quicklookFixtureScriptExecuted=true;parent.quicklookFixtureScriptExecuted=true;</script>
+</main></body></html>
+"""
+    add("html/preview.html", html_preview, mode="html")
+    add("html/preview.htm", html_preview, mode="html")
+    add("html/preview.xhtml", """<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"><head><style>h1 { color: rgb(18,52,86); }</style></head>
+<body><h1>XHTML static preview</h1><p>Alpha needle 你好</p><table><tr><td>Readable cell</td></tr></table><img src="assets/local-swatch.png" alt="Local raster" /></body></html>
+""", mode="html")
+    add("html/blocked-resources.html", """<!doctype html><html><head><base href="https://example.invalid/"><meta http-equiv="refresh" content="0;url=https://example.invalid/refresh"><link rel="stylesheet" href="https://example.invalid/style"><style>@import url('https://example.invalid/import');@font-face{font-family:remote;src:url('https://example.invalid/font')}p{background-image:url('https://example.invalid/background')}</style></head><body>
+<h1>Blocked HTML resources</h1><p onclick="parent.quicklookFixtureScriptExecuted=true">Readable sibling</p>
+<img src="https://example.invalid/image.png" onerror="parent.quicklookFixtureScriptExecuted=true"><img src="../outside.png"><img src="/tmp/private.png"><img src="assets/unsafe.svg"><img src="quicklook-resource://local/forged.png">
+<picture><source srcset="https://example.invalid/source.png"><img src="https://example.invalid/picture.png"></picture>
+<iframe src="https://example.invalid/frame"></iframe><object data="https://example.invalid/plugin"></object><video src="https://example.invalid/video" poster="https://example.invalid/poster"></video><form action="https://example.invalid/form"><input value="hidden control"></form><svg><foreignObject><script>parent.quicklookFixtureScriptExecuted=true</script></foreignObject></svg><script type="module">parent.quicklookFixtureScriptExecuted=true</script>
+<p>After blocked resources</p></body></html>
+""", mode="html")
+    # Keep the tiny raster shared with the static HTML interaction fixtures.
+    write_missing(FIXTURES / "html/assets/local-swatch.png", bytes.fromhex(
+        "89504e470d0a1a0a0000000d4948445200000001000000010804000000b51c0c020000000b4944415478da6364f80f00010501012718e3660000000049454e44ae426082"
+    ))
 
     cjk = "应用名称=轻量文档预览\n说明=这是用于检查中文配置文件编码的测试内容，支持日志和源代码。\n"
     add("encoding/utf8.log", cjk)
@@ -213,12 +248,15 @@ Recreate/check these fixtures with `python3 scripts/make-fixtures.py`.
 Existing files with different contents are deliberately not overwritten.
 
 `manifest.json` records intended reader behavior, source encoding, and hashes.
-Binary inputs are intentional rejection cases. TXT and HTML are system-provider
-regression cases. Legacy encoding detection is heuristic; verify displayed text.
+Binary inputs are intentional rejection cases. TXT remains a system-provider
+regression case. HTML/HTM/XHTML use controlled static HTML preview; the historical
+`text/system-preview.html` keeps its original bytes and wording as a legacy input,
+not a current system-provider expectation. Legacy encodings remain heuristic.
 
 The raster checkerboard images are generated locally with Python's standard
 library. The Markdown resource fixture includes blocked remote, parent-path,
-symlink, file-URL, SVG, and script examples. Do not execute source fixtures.
+symlink, file-URL, SVG, and script examples. HTML fixtures cover static documents,
+local raster images and blocked active content/resources. Do not execute fixtures.
 
 Large files are opt-in: `python3 scripts/make-fixtures.py --large` creates ignored
 inputs under `.build/fixtures`, never source-controlled 100 MiB / 1 GiB files.

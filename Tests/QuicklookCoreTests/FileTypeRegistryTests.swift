@@ -13,13 +13,23 @@ final class FileTypeRegistryTests: XCTestCase {
         }
     }
 
+    func testHTMLVariantsRemainRecognizableWithoutClaimingSystemPreview() {
+        for suffix in ["html", "htm", "xhtml"] {
+            let type = FileTypeRegistry.classify(fileName: "sample.\(suffix)")
+            XCTAssertEqual(type?.id, "html", suffix)
+            XCTAssertEqual(type?.mode, "html", suffix)
+            XCTAssertEqual(type?.language, "html", suffix)
+            XCTAssertEqual(type?.utis, [], suffix)
+        }
+    }
+
     func testSystemOwnedFormatsRemainOutsideRegistrationAndClassification() {
-        let excludedSuffixes = ["txt", "text", "html", "htm", "xhtml", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv", "svg", "png", "jpg", "mp4"]
+        let excludedSuffixes = ["txt", "text", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "csv", "svg", "png", "jpg", "mp4"]
         for suffix in excludedSuffixes {
             XCTAssertNil(FileTypeRegistry.classify(fileName: "sample.\(suffix)"), suffix)
             XCTAssertFalse(FileTypeRegistry.supportedExtensions.contains(suffix), suffix)
         }
-        let excludedTypes = ["public.data", "public.content", "public.text", "public.plain-text", "public.source-code", "public.html", "public.xml-based-text", "com.adobe.pdf", "public.comma-separated-values-text", "public.svg-image", "public.mpeg-2-transport-stream", "public.avchd-mpeg-2-transport-stream", "com.apple.logic.exs", "com.adobe.edn", "com.apple.rez-source"]
+        let excludedTypes = ["public.data", "public.content", "public.text", "public.plain-text", "public.source-code", "public.xml-based-text", "com.adobe.pdf", "public.comma-separated-values-text", "public.svg-image", "public.mpeg-2-transport-stream", "public.avchd-mpeg-2-transport-stream", "com.apple.logic.exs", "com.adobe.edn", "com.apple.rez-source"]
         for type in excludedTypes {
             XCTAssertFalse(FileTypeRegistry.supportedUTIs.contains(type), type)
         }
@@ -40,7 +50,7 @@ final class FileTypeRegistryTests: XCTestCase {
         let suffixes = FileTypeRegistry.all.flatMap(\.extensions)
         XCTAssertEqual(suffixes.count, Set(suffixes).count)
         for type in FileTypeRegistry.all {
-            XCTAssertTrue(["markdown", "json", "jsonl", "code"].contains(type.mode), type.id)
+            XCTAssertTrue(["markdown", "json", "jsonl", "html", "code"].contains(type.mode), type.id)
             XCTAssertFalse(type.language.isEmpty, type.id)
             for suffix in type.extensions {
                 XCTAssertEqual(suffix, suffix.lowercased(), type.id)
