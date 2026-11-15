@@ -4,7 +4,8 @@ import XCTest
 
 final class HostImageAccessTargetTests: XCTestCase {
     func testReaderAndExtensionResolveTheirOwnContainingApp() {
-        let app = URL(fileURLWithPath: "/Applications/OrbisPeek.app")
+        // Bundle directory URLs must not depend on whether the app exists on the test host.
+        let app = URL(fileURLWithPath: "/Applications/OrbisPeek.app", isDirectory: true)
         XCTAssertEqual(HostImageAccessTarget.applicationURL(for: app), app)
         XCTAssertEqual(HostImageAccessTarget.applicationURL(for: app.appendingPathComponent("Contents/PlugIns/QuicklookPreview.appex")), app)
         let development = URL(fileURLWithPath: "/tmp/isolated/OrbisPeek.app", isDirectory: true)
